@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gelir_gider_takip/controllers/transaction_controller.dart';
-import 'package:gelir_gider_takip/models/transaction_model.dart';
-import 'package:gelir_gider_takip/features/add_transaction_view.dart';
+import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
+import 'package:gelir_gider_takip/views/add_transaction_view.dart';
+import 'package:gelir_gider_takip/widgets/summary_card.dart';
+import 'package:gelir_gider_takip/widgets/transaction_item.dart';
 import 'package:get/get.dart';
 
-class HomeView extends GetView<TransactionController> {
+class HomeView extends GetView<TransactionViewModel> {
   const HomeView({super.key});
 
   @override
@@ -22,7 +23,7 @@ class HomeView extends GetView<TransactionController> {
             child: Row(
               children: [
                 Expanded(
-                  child: _buildSummaryCard(
+                  child: SummaryCard(
                     title: "Aylık Gelir",
                     amount: Obx(
                       () => Text(
@@ -40,7 +41,7 @@ class HomeView extends GetView<TransactionController> {
                 ),
                 SizedBox(width: 12),
                 Expanded(
-                  child: _buildSummaryCard(
+                  child: SummaryCard(
                     title: "Aylık Gider",
                     amount: Obx(
                       () => Text(
@@ -71,14 +72,22 @@ class HomeView extends GetView<TransactionController> {
               ),
               child: Obx(() {
                 if (controller.transactions.isEmpty) {
-                  return const Text("Henüz bir işlem eklenmedi");
+                  return const Center(
+                    child: Text(
+                      "Henüz bir işlem eklenmedi",
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  );
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: controller.transactions.length,
                   itemBuilder: (context, index) {
                     final transaction = controller.transactions[index];
-                    return _buildTransactionItem(transaction, controller);
+                    return TransactionItem(
+                      item: transaction,
+                      controller: controller,
+                    );
                   },
                 );
               }),
@@ -97,7 +106,7 @@ class HomeView extends GetView<TransactionController> {
         notchMargin: 8,
         color: const Color(0xFF8DBEAD),
         child: SizedBox(
-          height: 240,
+          height: 60,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -117,108 +126,4 @@ class HomeView extends GetView<TransactionController> {
       ),
     );
   }
-}
-
-Widget _buildTransactionItem(
-  TransactionModel item,
-  TransactionController controller,
-) {
-  return ListTile(
-    leading: Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Icon(
-        item.type == TransactionType.gelir
-            ? Icons.wallet
-            : Icons.directions_bus,
-        color: item.type == TransactionType.gelir
-            ? const Color(0xFF8DBEAD)
-            : const Color(0xFFE5A1AF),
-      ),
-    ),
-    title: Text(
-      item.title,
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    ),
-    subtitle: Text(item.description),
-    trailing: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              "${item.type == TransactionType.gelir ? '+' : '-'} ₺ ${item.amount.toStringAsFixed(2)}",
-              style: TextStyle(
-                color: item.type == TransactionType.gelir
-                    ? const Color(0xFF8DBEAD)
-                    : const Color(0xFFE5A1AF),
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              "${item.date.day}/${item.date.month}/${item.date.year}",
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ],
-        ),
-        SizedBox(width: 8),
-        IconButton(
-          onPressed: () {
-            Get.defaultDialog(
-              title: "Sil",
-              middleText: "Bu işlemi silmek istediğinize emin misiniz?",
-              textConfirm: "Evet",
-              textCancel: "Hayır",
-              confirmTextColor: Colors.white,
-              onConfirm: () {
-                controller.deleteTransaction(item.id);
-                Get.back();
-              },
-            );
-          },
-          icon: const Icon(Icons.delete_outline),
-          color: Colors.redAccent,
-          iconSize: 20,
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildSummaryCard({
-  required String title,
-  required Widget amount,
-  required Color color,
-  required IconData icon,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(15),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: Colors.white70),
-            const SizedBox(width: 4),
-            Text(
-              title,
-              style: const TextStyle(color: Colors.white70, fontSize: 18),
-            ),
-          ],
-        ),
-        SizedBox(height: 8),
-        amount,
-      ],
-    ),
-  );
 }

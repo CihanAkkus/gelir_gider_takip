@@ -1,24 +1,19 @@
 import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:gelir_gider_takip/services/db_helper.dart';
+import 'package:flutter/material.dart';
 
 class TransactionRepository {
 
-  void loadCategories() async {
+
+  Future<List<CategoryModel>> getCategories() async {
     var data = await DbHelper.queryCategory();
 
     if (data.isEmpty) {
       await _createDefultCategories();
       data = await DbHelper.queryCategory();
     }
-
-    categories.assignAll(
-      data.map((item) => CategoryModel.fromJson(item)).toList(),
-    );
-
-    if (categories.isNotEmpty) {
-      selectedCategory.value = categories[0];
-    }
+    return data.map((item) => CategoryModel.fromJson(item)).toList();
   }
 
   Future<void> _createDefultCategories() async {
@@ -45,30 +40,20 @@ class TransactionRepository {
     }
   }
 
-  void addCategory(CategoryModel category) async {
+  Future<void> addCategory(CategoryModel category) async {
     await DbHelper.insertCategory(category);
-    categories.add(category);
   }
 
-  void getTransactions() async {
+  Future<List<TransactionModel>> getTransactions() async {
     var data = await DbHelper.query();
-
-    transactions.assignAll(
-      data.map((item) => TransactionModel.fromJson(item)).toList(),
-    );
+    return data.map((item) => TransactionModel.fromJson(item)).toList();
   }
 
-  void addTransaction(TransactionModel transaction) async {
+  Future<void> addTransaction(TransactionModel transaction) async {
     await DbHelper.insert(transaction);
-
-    transactions.add(transaction);
   }
 
-  void deleteTransaction(String id) async {
+  Future<void> deleteTransaction(String id) async {
     await DbHelper.delete(id);
-
-    transactions.removeWhere((element) => element.id == id);
   }
-
-
 }

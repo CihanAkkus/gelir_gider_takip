@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 enum TransactionType { gelir, gider }
 
 class TransactionModel {

@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:get/get.dart';
-import 'package:gelir_gider_takip/services/db_helper.dart';
+import 'package:gelir_gider_takip/repositories/transaction_repository.dart';
 
-class TransactionController extends GetxController {
+class TransactionViewModel extends GetxController {
+  final TransactionRepository _repository = TransactionRepository();
+
   var transactions = <TransactionModel>[].obs;
   var categories = <CategoryModel>[].obs;
 
   var selectedCategory = Rxn<CategoryModel>();
-
   var selectedDate = DateTime.now().obs;
   var isGider = true.obs;
 
@@ -21,68 +21,31 @@ class TransactionController extends GetxController {
   }
 
   void loadCategories() async {
-    var data = await DbHelper.queryCategory();
-
-    if (data.isEmpty) {
-      await _createDefultCategories();
-      data = await DbHelper.queryCategory();
-    }
-
-    categories.assignAll(
-      data.map((item) => CategoryModel.fromJson(item)).toList(),
-    );
+    var fetchedCategories = await _repository.getCategories();
+    categories.assignAll(fetchedCategories);
 
     if (categories.isNotEmpty) {
       selectedCategory.value = categories[0];
     }
   }
 
-  Future<void> _createDefultCategories() async {
-    final defaultCategories = [
-      CategoryModel(
-        id: "1",
-        name: "Eğitim",
-        iconCodePoint: Icons.school.codePoint,
-      ),
-      CategoryModel(
-        id: "2",
-        name: "Yemek",
-        iconCodePoint: Icons.restaurant.codePoint,
-      ),
-      CategoryModel(
-        id: "3",
-        name: "Ulaşım",
-        iconCodePoint: Icons.directions_bus.codePoint,
-      ),
-    ];
-
-    for (var cat in defaultCategories) {
-      await DbHelper.insertCategory(cat);
-    }
-  }
-
   void addCategory(CategoryModel category) async {
-    await DbHelper.insertCategory(category);
+    await _repository.addCategory(category);
     categories.add(category);
   }
 
   void getTransactions() async {
-    var data = await DbHelper.query();
-
-    transactions.assignAll(
-      data.map((item) => TransactionModel.fromJson(item)).toList(),
-    );
+    var fetchedTransactions = await _repository.getTransactions();
+    transactions.assignAll(fetchedTransactions);
   }
 
   void addTransaction(TransactionModel transaction) async {
-    await DbHelper.insert(transaction);
-
+    await _repository.addTransaction(transaction);
     transactions.add(transaction);
   }
 
   void deleteTransaction(String id) async {
-    await DbHelper.delete(id);
-
+    await _repository.deleteTransaction(id);
     transactions.removeWhere((element) => element.id == id);
   }
 

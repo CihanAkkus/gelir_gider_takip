@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class CategoryModel {
   final String id;
   final String name;
@@ -22,7 +20,5 @@ class CategoryModel {
       iconCodePoint: json["iconCodePoint"],
     );
   }
-
-  IconData get iconData => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
 
 }

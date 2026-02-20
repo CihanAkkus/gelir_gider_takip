@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/bindings/home_binding.dart';
 import 'package:get/get.dart';
-import 'views/home_view.dart';
+import 'package:gelir_gider_takip/views/home_view.dart';
 import 'package:gelir_gider_takip/services/db_helper.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await DbHelper.initDb();
