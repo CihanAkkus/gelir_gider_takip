@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
 import 'package:gelir_gider_takip/views/add_transaction_view.dart';
+import 'package:gelir_gider_takip/widgets/filter_bottom_sheet.dart';
 import 'package:gelir_gider_takip/widgets/summary_card.dart';
 import 'package:gelir_gider_takip/widgets/transaction_item.dart';
 import 'package:get/get.dart';
 
+import '../widgets/search_text_field.dart';
+
 class HomeView extends GetView<TransactionViewModel> {
-  const HomeView({super.key});
+  HomeView({
+    super.key,
+  }); //const olamaz çünkü İçindeki tüm field’lar da compile-time sabit olmalı.
+
+  final TextEditingController queryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +26,7 @@ class HomeView extends GetView<TransactionViewModel> {
         children: [
           const SizedBox(height: 20),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 0),
             child: Row(
               children: [
                 Expanded(
@@ -60,7 +67,36 @@ class HomeView extends GetView<TransactionViewModel> {
               ],
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: SearchTextField(
+                  queryChanged: controller.searchTransactions,
+                  controller: queryController,
+                  hint: 'Arama',
+                  icon: Icons.search,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    Get.bottomSheet(
+                      const FilterBottomSheet(),
+                      isScrollControlled: true,
+                    );
+                  },
+                  icon: const Icon(Icons.tune, color: const Color(0xFF8DBEAD)),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -71,19 +107,19 @@ class HomeView extends GetView<TransactionViewModel> {
                 ),
               ),
               child: Obx(() {
-                if (controller.transactions.isEmpty) {
+                if (controller.filteredTransactions.isEmpty) {
                   return const Center(
                     child: Text(
-                      "Henüz bir işlem eklenmedi",
+                      "İşlem bulunamadı",
                       style: TextStyle(color: Colors.white54),
                     ),
                   );
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: controller.transactions.length,
+                  itemCount: controller.filteredTransactions.length,
                   itemBuilder: (context, index) {
-                    final transaction = controller.transactions[index];
+                    final transaction = controller.filteredTransactions[index];
                     return TransactionItem(
                       item: transaction,
                       controller: controller,
@@ -97,7 +133,11 @@ class HomeView extends GetView<TransactionViewModel> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(() => AddTransactionView()),
+        onPressed: () async {
+          await Get.to(() => AddTransactionView());
+          queryController.clear();
+          controller.clearSearch();
+        },
         backgroundColor: const Color(0xFFE5A1AF),
         child: const Icon(Icons.add, size: 30),
       ),

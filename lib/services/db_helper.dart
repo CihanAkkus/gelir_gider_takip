@@ -77,15 +77,18 @@ class DbHelper {
 
   //kategori methodları
   static Future<int> insertCategory(CategoryModel model) async {
-    return await _db?.insert(_categoryTableName,model.toJson()) ?? 0;
+    return await _db?.insert(_categoryTableName, model.toJson()) ?? 0;
   }
 
-  static Future<List<Map<String,dynamic>>>  queryCategory() async {
+  static Future<List<Map<String, dynamic>>> queryCategory() async {
     return await _db!.query(_categoryTableName);
   }
 
-  static Future<int> deleteCategory(String id) async{
-    return await _db!.delete(_categoryTableName,where: 'id = ?', whereArgs: [id]);
+  static Future<int> deleteCategory(String id) async {
+    return await _db!.delete(
+      _categoryTableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
-
 }

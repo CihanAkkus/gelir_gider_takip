@@ -25,7 +25,7 @@ class CustomTextField extends StatelessWidget {
           " $label",
           style: const TextStyle(color: Colors.white54, fontSize: 12),
         ),
-        const SizedBox(height: 6),
+        //const SizedBox(height: 2),
         TextField(
           controller: controller,
           keyboardType: isNumber

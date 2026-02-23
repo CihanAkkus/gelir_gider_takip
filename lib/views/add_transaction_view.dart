@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
 import 'package:gelir_gider_takip/models/category_model.dart';
-import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:gelir_gider_takip/widgets/custom_text_field.dart';
 import 'package:gelir_gider_takip/widgets/type_toggle.dart';
 import 'package:gelir_gider_takip/widgets/date_selector.dart';
@@ -22,11 +21,7 @@ class AddTransactionView extends GetView<TransactionViewModel> {
         title: const Text(
           "İşlem Ekle",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        )
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -138,13 +133,6 @@ class AddTransactionView extends GetView<TransactionViewModel> {
               onDateSelected: (date) => controller.updateDate(date),
             ),
             const SizedBox(height: 40),
-            /*
-            _buildSaveButton(
-              controller.isGider,
-              amountController,
-              descController,
-              controller,
-            ),*/
             SaveButton(
               controller: controller,
               amountController: amountController,

@@ -28,6 +28,7 @@ class SaveButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
+
           if (controller.selectedCategory.value == null ||
               amountController.text.isEmpty) {
             Get.snackbar(
