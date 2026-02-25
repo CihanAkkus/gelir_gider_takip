@@ -14,6 +14,21 @@ class TransactionViewModel extends GetxController {
 
   var selectedCategory = Rxn<CategoryModel>();
   var selectedDate = DateTime.now().obs;
+
+  var filterDateList = [
+    "Tümü",
+    "Son 7 Gün",
+    "Son 15 Gün",
+    "Bu Ay",
+    "Son 1 Ay",
+    "Son 3 Ay",
+    "Son 6 Ay",
+    "Bu Yıl",
+  ];
+
+  var selectedFilteredCategory = "Tümü".obs;
+  var selectedFilteredDate = "Bu Ay".obs;
+
   var isGider = true.obs;
   String lastQuery = "";
 
@@ -42,6 +57,8 @@ class TransactionViewModel extends GetxController {
     var fetchedTransactions = await _repository.getTransactions();
     transactions.assignAll(fetchedTransactions);
     filteredTransactions.assignAll(transactions);
+
+    applyFilters();
   }
 
   void addTransaction(TransactionModel transaction) async {
@@ -61,28 +78,100 @@ class TransactionViewModel extends GetxController {
   }
 
   void searchTransactions(String query) {
-    this.lastQuery = query;//single source of truth
-    if (query.isEmpty) {
-      filteredTransactions.assignAll(transactions);
-    } else {
-      var filteredList = transactions
+    this.lastQuery = query; //single source of truth yöntemi
+    applyFilters();
+  }
+
+  //eğer filtreleme işlemleri çok artarsa, bir helper method ile ayrı bir class-
+  //içerisinde yazabiliriz  bu methodu
+  void applyFilters() {
+    Iterable<TransactionModel> tempIterable = transactions;
+    final now = DateTime.now();
+
+    if (lastQuery.isNotEmpty) {
+      tempIterable = tempIterable
           .where(
-            (item) => item.title.toLowerCase().contains(query.toLowerCase()),
-          )
-          .toList();
-      filteredTransactions.assignAll(filteredList);
+            (item) =>
+                item.title.toLowerCase().contains(lastQuery.toLowerCase()),
+          );
     }
+
+    if (selectedFilteredCategory.value != "Tümü") {
+      tempIterable = tempIterable.where((item) {
+        return item.title.toLowerCase() ==
+            selectedFilteredCategory.value.toLowerCase();
+      });
+    }
+
+    if (selectedFilteredDate.value != "Tümü") {
+      switch (selectedFilteredDate.value) {
+        case "Son 7 Gün":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(now.subtract(Duration(days: 7)));
+          });
+          break;
+        case "Son 15 Gün":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(now.subtract(Duration(days: 15)));
+          });
+          break;
+        case "Bu Ay":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(
+              DateTime(now.year, now.month, 1).subtract(Duration(days: 1)),
+            );
+          });
+          break;
+        case "Son 1 Ay":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(now.subtract(Duration(days: 30)));
+          });
+          break;
+        case "Son 3 Ay":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(DateTime(now.year, now.month - 3, now.day));
+          });
+          break;
+        case "Son 6 Ay":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(DateTime(now.year, now.month - 6, now.day));
+          });
+          break;
+        case "Bu Yıl":
+          tempIterable = tempIterable.where((item) {
+            return //item.date.isBefore(now) &&
+            item.date.isAfter(
+              DateTime(now.year, 1, 1).subtract(Duration(days: 1)),
+            );
+          });
+          break;
+      }
+    }
+
+    filteredTransactions.assignAll(tempIterable.toList());
   }
 
   void updateDate(DateTime date) {
     selectedDate.value = date;
   }
 
-  double get totalIncome => transactions
+  //toplam gelir ve gider değerleri filtrelere göre çalışabilecek
+  double get totalIncome => filteredTransactions
       .where((t) => t.type == TransactionType.gelir)
       .fold(0.0, (sum, item) => sum + item.amount);
 
-  double get totalExpense => transactions
+  double get totalExpense => filteredTransactions
       .where((t) => t.type == TransactionType.gider)
       .fold(0.0, (sum, item) => sum + item.amount);
+
+  List<String> get categoryNames => [
+    "Tümü",
+    ...categories.map((category) => category.name).toList(),
+  ];
 }

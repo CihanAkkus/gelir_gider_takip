@@ -87,7 +87,7 @@ class HomeView extends GetView<TransactionViewModel> {
                 child: IconButton(
                   onPressed: () {
                     Get.bottomSheet(
-                      const FilterBottomSheet(),
+                       FilterBottomSheet(),
                       isScrollControlled: true,
                     );
                   },

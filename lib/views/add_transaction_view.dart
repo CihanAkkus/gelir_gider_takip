@@ -21,7 +21,7 @@ class AddTransactionView extends GetView<TransactionViewModel> {
         title: const Text(
           "İşlem Ekle",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        )
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -177,15 +177,34 @@ void _showAddCategoryDialog(
     confirmTextColor: Colors.white,
     buttonColor: const Color(0xFF8DBEAD),
     onConfirm: () {
-      if (nameController.text.isNotEmpty) {
+      final String inputName = nameController.text.trim();
+
+      if (inputName.isNotEmpty) {
+        bool isDuplicate = controller.categories.any(
+          (cat) => cat.name.toLowerCase() == inputName.toLowerCase(),
+        );
+
+        if (isDuplicate) {
+          Get.snackbar(
+            "Hata",
+            "Bu isimde bir kategori zaten mevcut!",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+
         controller.addCategory(
           CategoryModel(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
-            name: nameController.text,
+            name: inputName,
             iconCodePoint: defaultIcon,
           ),
         );
+
         Get.back();
+
         Get.snackbar(
           "Başarılı",
           "Kategori eklendi",

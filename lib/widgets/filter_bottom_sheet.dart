@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
+import 'package:gelir_gider_takip/widgets/picker_helper.dart';
 import 'package:get/get.dart';
 
 class FilterBottomSheet extends GetView<TransactionViewModel> {
-  const FilterBottomSheet({super.key});
+  FilterBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,14 @@ class FilterBottomSheet extends GetView<TransactionViewModel> {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    PickerHelper.showWheelPicker(
+                      context,
+                      controller.selectedFilteredCategory,
+                      controller.categoryNames,
+                      controller.applyFilters,
+                    );
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E1E1E),
@@ -66,12 +74,14 @@ class FilterBottomSheet extends GetView<TransactionViewModel> {
                                   ),
                                 ),
                                 SizedBox(height: 4),
-                                Text(
-                                  "Tümü",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                                Obx(
+                                  () => Text(
+                                    "${controller.selectedFilteredCategory}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -92,7 +102,14 @@ class FilterBottomSheet extends GetView<TransactionViewModel> {
               SizedBox(width: 15),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    PickerHelper.showWheelPicker(
+                      context,
+                      controller.selectedFilteredDate,
+                      controller.filterDateList,
+                      controller.applyFilters,
+                    );
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E1E1E),
@@ -115,12 +132,14 @@ class FilterBottomSheet extends GetView<TransactionViewModel> {
                                   ),
                                 ),
                                 SizedBox(height: 4),
-                                Text(
-                                  "Son 7 Gün",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                                Obx(
+                                  () => Text(
+                                    "${controller.selectedFilteredDate}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
