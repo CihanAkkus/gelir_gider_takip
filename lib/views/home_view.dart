@@ -134,6 +134,7 @@ class HomeView extends GetView<TransactionViewModel> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          controller.selectedDate.value = DateTime.now();
           await Get.to(() => AddTransactionView());
           queryController.clear();
           controller.clearSearch();
