@@ -66,9 +66,18 @@ class DbHelper {
   static Future<int> insert(TransactionModel model) async {
     return await _db?.insert(_tableName, model.toJson()) ?? 0;
   }
+  
 
-  static Future<List<Map<String, dynamic>>> query() async {
-    return await _db!.query(_tableName);
+  static Future<List<Map<String, dynamic>>> queryTransactions({
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    return await _db!.query(
+      _tableName,
+      limit: limit,
+      offset: offset,
+      orderBy: '$colDate DESC',
+    );
   }
 
   static Future<int> delete(String id) async {

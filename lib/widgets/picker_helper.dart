@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../mock_data/mock_data.dart';
+
 class PickerHelper {
   static Future showWheelPicker(
     BuildContext context,

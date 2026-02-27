@@ -1,10 +1,30 @@
+import 'package:flutter/cupertino.dart';
 import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:get/get.dart';
 import 'package:gelir_gider_takip/repositories/transaction_repository.dart';
 
 class TransactionViewModel extends GetxController {
-  final TransactionRepository _repository = TransactionRepository();
+
+  //controllers, memory leak için önlem
+  final TextEditingController queryController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+
+  final TransactionRepository repository;
+
+  TransactionViewModel({required this.repository});//CONSTRUCTOR
+
+
+
+
+  int _currentOffset = 0;
+  final int _limit =
+      20; //const yapmadık çünkü ilerde değiştirebilirim run-time ile belli olsun
+
+  var isLoadingMore = false.obs;
+  var hasMoreData = true.obs;
 
   var transactions =
       <TransactionModel>[].obs; //tüm verilerimizi koruduğumuz liste
@@ -37,10 +57,28 @@ class TransactionViewModel extends GetxController {
     super.onInit();
     getTransactions();
     getCategories();
+
+    scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent - 150) {
+      loadMoreTransactions();
+    }
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    queryController.dispose();
+    amountController.dispose();
+    descController.dispose();
+    super.onClose();
   }
 
   void getCategories() async {
-    var fetchedCategories = await _repository.getCategories();
+    var fetchedCategories = await repository.getCategories();
     categories.assignAll(fetchedCategories);
 
     if (categories.isNotEmpty) {
@@ -49,26 +87,58 @@ class TransactionViewModel extends GetxController {
   }
 
   void addCategory(CategoryModel category) async {
-    await _repository.addCategory(category);
+    await repository.addCategory(category);
     categories.add(category);
   }
 
   void getTransactions() async {
-    var fetchedTransactions = await _repository.getTransactions();
+    _currentOffset = 0;
+    hasMoreData.value = true;
+
+    var fetchedTransactions = await repository.getTransactions(
+      limit: _limit,
+      offset: _currentOffset,
+    );
     transactions.assignAll(fetchedTransactions);
-    filteredTransactions.assignAll(transactions);
+
+    if (fetchedTransactions.length < _limit) {
+      hasMoreData.value = false;
+    }
 
     applyFilters();
   }
 
+  void loadMoreTransactions() async {
+    if (!hasMoreData.value || isLoadingMore.value) return;
+
+    isLoadingMore.value = true;
+    _currentOffset += _limit;
+
+    var fetchedTransactions = await repository.getTransactions(
+      limit: _limit,
+      offset: _currentOffset,
+    );
+
+    if (fetchedTransactions.isEmpty) {
+      hasMoreData.value = false;
+    } else {
+      transactions.addAll(fetchedTransactions);
+      if (fetchedTransactions.length < _limit) {
+        hasMoreData.value = false;
+      }
+      applyFilters();
+    }
+    isLoadingMore.value = false;
+  }
+
   void addTransaction(TransactionModel transaction) async {
-    await _repository.addTransaction(transaction);
+    await repository.addTransaction(transaction);
     transactions.add(transaction);
     searchTransactions("");
   }
 
   void deleteTransaction(String id) async {
-    await _repository.deleteTransaction(id);
+    await repository.deleteTransaction(id);
     transactions.removeWhere((element) => element.id == id);
     searchTransactions(lastQuery);
   }
@@ -89,11 +159,9 @@ class TransactionViewModel extends GetxController {
     final now = DateTime.now();
 
     if (lastQuery.isNotEmpty) {
-      tempIterable = tempIterable
-          .where(
-            (item) =>
-                item.title.toLowerCase().contains(lastQuery.toLowerCase()),
-          );
+      tempIterable = tempIterable.where(
+        (item) => item.title.toLowerCase().contains(lastQuery.toLowerCase()),
+      );
     }
 
     if (selectedFilteredCategory.value != "Tümü") {

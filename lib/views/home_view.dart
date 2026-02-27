@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gelir_gider_takip/mock_data/mock_data.dart';
 import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
 import 'package:gelir_gider_takip/views/add_transaction_view.dart';
 import 'package:gelir_gider_takip/widgets/filter_bottom_sheet.dart';
@@ -13,14 +14,21 @@ class HomeView extends GetView<TransactionViewModel> {
     super.key,
   }); //const olamaz çünkü İçindeki tüm field’lar da compile-time sabit olmalı.
 
-  final TextEditingController queryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Gelir Gider App"),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.logout))],
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await runMockData();
+              controller.getTransactions();
+            },
+            icon: const Icon(Icons.downloading),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -31,7 +39,7 @@ class HomeView extends GetView<TransactionViewModel> {
               children: [
                 Expanded(
                   child: SummaryCard(
-                    title: "Aylık Gelir",
+                    title: "Toplam Gelir",
                     amount: Obx(
                       () => Text(
                         "₺ ${controller.totalIncome.toStringAsFixed(2)}",
@@ -49,7 +57,7 @@ class HomeView extends GetView<TransactionViewModel> {
                 SizedBox(width: 12),
                 Expanded(
                   child: SummaryCard(
-                    title: "Aylık Gider",
+                    title: "Toplam Gider",
                     amount: Obx(
                       () => Text(
                         "₺ ${controller.totalExpense.toStringAsFixed(2)}",
@@ -73,7 +81,7 @@ class HomeView extends GetView<TransactionViewModel> {
               Expanded(
                 child: SearchTextField(
                   queryChanged: controller.searchTransactions,
-                  controller: queryController,
+                  controller: controller.queryController,
                   hint: 'Arama',
                   icon: Icons.search,
                 ),
@@ -87,7 +95,7 @@ class HomeView extends GetView<TransactionViewModel> {
                 child: IconButton(
                   onPressed: () {
                     Get.bottomSheet(
-                       FilterBottomSheet(),
+                      FilterBottomSheet(),
                       isScrollControlled: true,
                     );
                   },
@@ -116,6 +124,7 @@ class HomeView extends GetView<TransactionViewModel> {
                   );
                 }
                 return ListView.builder(
+                  controller: controller.scrollController,
                   padding: const EdgeInsets.all(16),
                   itemCount: controller.filteredTransactions.length,
                   itemBuilder: (context, index) {
@@ -136,7 +145,7 @@ class HomeView extends GetView<TransactionViewModel> {
         onPressed: () async {
           controller.selectedDate.value = DateTime.now();
           await Get.to(() => AddTransactionView());
-          queryController.clear();
+          controller.queryController.clear();
           controller.clearSearch();
         },
         backgroundColor: const Color(0xFFE5A1AF),

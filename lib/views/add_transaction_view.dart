@@ -8,8 +8,7 @@ import 'package:gelir_gider_takip/widgets/save_button.dart';
 import 'package:get/get.dart';
 
 class AddTransactionView extends GetView<TransactionViewModel> {
-  final TextEditingController amountController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
+
 
   AddTransactionView({super.key});
 
@@ -114,7 +113,7 @@ class AddTransactionView extends GetView<TransactionViewModel> {
             ),
             const SizedBox(height: 15),
             CustomTextField(
-              controller: amountController,
+              controller: controller.amountController,
               label: "Miktar",
               hint: "0.00",
               icon: Icons.payments_outlined,
@@ -122,7 +121,7 @@ class AddTransactionView extends GetView<TransactionViewModel> {
             ),
             const SizedBox(height: 15),
             CustomTextField(
-              controller: descController,
+              controller: controller.descController,
               label: "Açıklama",
               hint: "Not Ekleyin",
               icon: Icons.notes_outlined,
@@ -135,8 +134,8 @@ class AddTransactionView extends GetView<TransactionViewModel> {
             const SizedBox(height: 40),
             SaveButton(
               controller: controller,
-              amountController: amountController,
-              descController: descController,
+              amountController: controller.amountController,
+              descController: controller.descController,
             ),
           ],
         ),

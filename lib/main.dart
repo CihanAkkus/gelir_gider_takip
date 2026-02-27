@@ -4,10 +4,13 @@ import 'package:get/get.dart';
 import 'package:gelir_gider_takip/views/home_view.dart';
 import 'package:gelir_gider_takip/services/db_helper.dart';
 
+import 'mock_data/mock_data.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await DbHelper.initDb();
+  //await runMockData();
 
   runApp(const MyApp());
 }

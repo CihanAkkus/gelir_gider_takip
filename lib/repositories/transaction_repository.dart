@@ -4,8 +4,6 @@ import 'package:gelir_gider_takip/services/db_helper.dart';
 import 'package:flutter/material.dart';
 
 class TransactionRepository {
-
-
   Future<List<CategoryModel>> getCategories() async {
     var data = await DbHelper.queryCategory();
 
@@ -44,8 +42,11 @@ class TransactionRepository {
     await DbHelper.insertCategory(category);
   }
 
-  Future<List<TransactionModel>> getTransactions() async {
-    var data = await DbHelper.query();
+  Future<List<TransactionModel>> getTransactions({
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    var data = await DbHelper.queryTransactions(limit: limit, offset: offset);
     return data.map((item) => TransactionModel.fromJson(item)).toList();
   }
 
