@@ -3,9 +3,9 @@ import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:get/get.dart';
 import 'package:gelir_gider_takip/repositories/transaction_repository.dart';
+import '../services/db_helper.dart';
 
 class TransactionViewModel extends GetxController {
-
   //controllers, memory leak için önlem
   final TextEditingController queryController = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -14,10 +14,7 @@ class TransactionViewModel extends GetxController {
 
   final TransactionRepository repository;
 
-  TransactionViewModel({required this.repository});//CONSTRUCTOR
-
-
-
+  TransactionViewModel({required this.repository}); //CONSTRUCTOR
 
   int _currentOffset = 0;
   final int _limit =
@@ -28,8 +25,6 @@ class TransactionViewModel extends GetxController {
 
   var transactions =
       <TransactionModel>[].obs; //tüm verilerimizi koruduğumuz liste
-  final filteredTransactions = <TransactionModel>[]
-      .obs; //verileri ekranda gösterdiğimiz, filtreleme yaptığımız liste
   var categories = <CategoryModel>[].obs;
 
   var selectedCategory = Rxn<CategoryModel>();
@@ -48,6 +43,12 @@ class TransactionViewModel extends GetxController {
 
   var selectedFilteredCategory = "Tümü".obs;
   var selectedFilteredDate = "Bu Ay".obs;
+
+  var _totalIncome = 0.0.obs;
+  var _totalExpense = 0.0.obs;
+
+  double get totalIncome => _totalIncome.value;
+  double get totalExpense => _totalExpense.value;
 
   var isGider = true.obs;
   String lastQuery = "";
@@ -94,18 +95,23 @@ class TransactionViewModel extends GetxController {
   void getTransactions() async {
     _currentOffset = 0;
     hasMoreData.value = true;
+    isLoadingMore.value = true;
+
+    _fetchTotals();
 
     var fetchedTransactions = await repository.getTransactions(
       limit: _limit,
       offset: _currentOffset,
+      searchQuery: lastQuery,
+      categoryName: selectedFilteredCategory.value,
+      startDate: _getStartDateString(),
     );
     transactions.assignAll(fetchedTransactions);
 
     if (fetchedTransactions.length < _limit) {
       hasMoreData.value = false;
     }
-
-    applyFilters();
+    isLoadingMore.value = false;
   }
 
   void loadMoreTransactions() async {
@@ -117,6 +123,9 @@ class TransactionViewModel extends GetxController {
     var fetchedTransactions = await repository.getTransactions(
       limit: _limit,
       offset: _currentOffset,
+      searchQuery: lastQuery,
+      categoryName: selectedFilteredCategory.value,
+      startDate: _getStartDateString(),
     );
 
     if (fetchedTransactions.isEmpty) {
@@ -126,20 +135,19 @@ class TransactionViewModel extends GetxController {
       if (fetchedTransactions.length < _limit) {
         hasMoreData.value = false;
       }
-      applyFilters();
     }
     isLoadingMore.value = false;
   }
 
   void addTransaction(TransactionModel transaction) async {
     await repository.addTransaction(transaction);
-    transactions.add(transaction);
+    //transactions.add(transaction);
     searchTransactions("");
   }
 
   void deleteTransaction(String id) async {
     await repository.deleteTransaction(id);
-    transactions.removeWhere((element) => element.id == id);
+    //transactions.removeWhere((element) => element.id == id);
     searchTransactions(lastQuery);
   }
 
@@ -152,91 +160,69 @@ class TransactionViewModel extends GetxController {
     applyFilters();
   }
 
+  String? _getStartDateString() {
+    final now = DateTime.now();
+    DateTime? targetDate;
+
+    switch (selectedFilteredDate.value) {
+      case "Son 7 Gün":
+        targetDate = now.subtract(const Duration(days: 7));
+        break;
+      case "Son 15 Gün":
+        targetDate = now.subtract(const Duration(days: 15));
+        break;
+      case "Bu Ay":
+        targetDate = DateTime(
+          now.year,
+          now.month,
+          1,
+        ).subtract(const Duration(days: 1));
+        break;
+      case "Son 1 Ay":
+        targetDate = now.subtract(const Duration(days: 30));
+        break;
+      case "Son 3 Ay":
+        targetDate = DateTime(now.year, now.month - 3, now.day);
+        break;
+      case "Son 6 Ay":
+        targetDate = DateTime(now.year, now.month - 6, now.day);
+        break;
+      case "Bu Yıl":
+        targetDate = DateTime(now.year, 1, 1).subtract(const Duration(days: 1));
+        break;
+      case "Tümü":
+      default:
+        return null;
+    }
+    return targetDate.toIso8601String();
+  }
+
   //eğer filtreleme işlemleri çok artarsa, bir helper method ile ayrı bir class-
   //içerisinde yazabiliriz  bu methodu
   void applyFilters() {
-    Iterable<TransactionModel> tempIterable = transactions;
-    final now = DateTime.now();
-
-    if (lastQuery.isNotEmpty) {
-      tempIterable = tempIterable.where(
-        (item) => item.title.toLowerCase().contains(lastQuery.toLowerCase()),
-      );
-    }
-
-    if (selectedFilteredCategory.value != "Tümü") {
-      tempIterable = tempIterable.where((item) {
-        return item.title.toLowerCase() ==
-            selectedFilteredCategory.value.toLowerCase();
-      });
-    }
-
-    if (selectedFilteredDate.value != "Tümü") {
-      switch (selectedFilteredDate.value) {
-        case "Son 7 Gün":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(now.subtract(Duration(days: 7)));
-          });
-          break;
-        case "Son 15 Gün":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(now.subtract(Duration(days: 15)));
-          });
-          break;
-        case "Bu Ay":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(
-              DateTime(now.year, now.month, 1).subtract(Duration(days: 1)),
-            );
-          });
-          break;
-        case "Son 1 Ay":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(now.subtract(Duration(days: 30)));
-          });
-          break;
-        case "Son 3 Ay":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(DateTime(now.year, now.month - 3, now.day));
-          });
-          break;
-        case "Son 6 Ay":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(DateTime(now.year, now.month - 6, now.day));
-          });
-          break;
-        case "Bu Yıl":
-          tempIterable = tempIterable.where((item) {
-            return //item.date.isBefore(now) &&
-            item.date.isAfter(
-              DateTime(now.year, 1, 1).subtract(Duration(days: 1)),
-            );
-          });
-          break;
-      }
-    }
-
-    filteredTransactions.assignAll(tempIterable.toList());
+    getTransactions();
   }
 
   void updateDate(DateTime date) {
     selectedDate.value = date;
   }
 
-  //toplam gelir ve gider değerleri filtrelere göre çalışabilecek
-  double get totalIncome => filteredTransactions
-      .where((t) => t.type == TransactionType.gelir)
-      .fold(0.0, (sum, item) => sum + item.amount);
+  Future<void> _fetchTotals() async {
+    _totalIncome.value = await repository.getTotalAmount(
+      TransactionType.gelir.name,
+      searchQuery: lastQuery,
+      categoryName: selectedFilteredCategory.value,
+      startDate: _getStartDateString(),
+    );
 
-  double get totalExpense => filteredTransactions
-      .where((t) => t.type == TransactionType.gider)
-      .fold(0.0, (sum, item) => sum + item.amount);
+    _totalExpense.value = await repository.getTotalAmount(
+      TransactionType.gider.name,
+      searchQuery: lastQuery,
+      categoryName: selectedFilteredCategory.value,
+      startDate: _getStartDateString(),
+    );
+  }
+
 
   List<String> get categoryNames => [
     "Tümü",

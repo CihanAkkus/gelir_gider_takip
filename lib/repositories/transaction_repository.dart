@@ -45,10 +45,21 @@ class TransactionRepository {
   Future<List<TransactionModel>> getTransactions({
     int limit = 20,
     int offset = 0,
+    String? searchQuery,
+    String? categoryName,
+    String? startDate,
   }) async {
-    var data = await DbHelper.queryTransactions(limit: limit, offset: offset);
+    var data = await DbHelper.queryTransactions(
+      limit: limit,
+      offset: offset,
+      searchQuery: searchQuery,
+      categoryName: categoryName,
+      startDate: startDate,
+    );
     return data.map((item) => TransactionModel.fromJson(item)).toList();
   }
+
+
 
   Future<void> addTransaction(TransactionModel transaction) async {
     await DbHelper.insert(transaction);
@@ -57,4 +68,20 @@ class TransactionRepository {
   Future<void> deleteTransaction(String id) async {
     await DbHelper.delete(id);
   }
+
+  Future<double> getTotalAmount(
+      String type, {
+        String? searchQuery,
+        String? categoryName,
+        String? startDate,
+      }) async {
+    return await DbHelper.calculateTotalAmount(
+      type,
+      searchQuery: searchQuery,
+      categoryName: categoryName,
+      startDate: startDate,
+    );
+  }
 }
+
+

@@ -66,19 +66,78 @@ class DbHelper {
   static Future<int> insert(TransactionModel model) async {
     return await _db?.insert(_tableName, model.toJson()) ?? 0;
   }
-  
 
   static Future<List<Map<String, dynamic>>> queryTransactions({
     int limit = 20,
     int offset = 0,
+    String? searchQuery,
+    String? categoryName,
+    String? startDate,
   }) async {
+    String whereClause = "1=1";
+    List<dynamic> whereArgs = [];
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      whereClause += " AND $colTitle LIKE  ?";
+      whereArgs.add('%$searchQuery%');
+    }
+
+    if (categoryName != null && categoryName != "Tümü") {
+      whereClause += " AND $colTitle = ?";
+      whereArgs.add(categoryName);
+    }
+
+    if (startDate != null) {
+      whereClause += " AND $colDate >= ?";
+      whereArgs.add(startDate);
+    }
+
     return await _db!.query(
       _tableName,
+      where: whereClause == "1=1" ? null : whereClause,
+      whereArgs: whereArgs.isEmpty ? null : whereArgs,
       limit: limit,
       offset: offset,
       orderBy: '$colDate DESC',
     );
   }
+
+  static Future<double> calculateTotalAmount(
+    String type, {
+    String? searchQuery,
+    String? categoryName,
+    String? startDate,
+  }) async {
+    String whereClause = "$colType = ?";
+    List<dynamic> whereArgs = [type];
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      whereClause += " AND $colTitle LIKE ?";
+      whereArgs.add('%$searchQuery%');
+    }
+
+    if (categoryName != null && categoryName != "Tümü") {
+      whereClause += " AND $colTitle = ?";
+      whereArgs.add(categoryName);
+    }
+
+    if (startDate != null) {
+      whereClause += " AND $colDate >= ?";
+      whereArgs.add(startDate);
+    }
+
+    var result = await _db!.rawQuery(
+      "SELECT SUM($colAmount) as total FROM $_tableName WHERE $whereClause",
+      whereArgs,
+    );
+
+    if (result.isNotEmpty && result.first['total'] != null) {
+      return (result.first['total'] as num).toDouble();
+    }
+    return 0.0;
+  }
+
+
 
   static Future<int> delete(String id) async {
     return await _db!.delete(_tableName, where: 'id = ?', whereArgs: [id]);

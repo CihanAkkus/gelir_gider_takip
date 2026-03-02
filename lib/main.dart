@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/bindings/home_binding.dart';
+import 'package:gelir_gider_takip/views/main_layout_view.dart';
 import 'package:get/get.dart';
 import 'package:gelir_gider_takip/views/home_view.dart';
 import 'package:gelir_gider_takip/services/db_helper.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: HomeView(),
+      home:  MainLayoutView(),
     );
   }
 }

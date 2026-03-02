@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:gelir_gider_takip/mock_data/mock_data.dart';
-import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
-import 'package:gelir_gider_takip/views/add_transaction_view.dart';
-import 'package:gelir_gider_takip/widgets/filter_bottom_sheet.dart';
-import 'package:gelir_gider_takip/widgets/summary_card.dart';
-import 'package:gelir_gider_takip/widgets/transaction_item.dart';
 import 'package:get/get.dart';
-
+import '../mock_data/mock_data.dart';
+import '../viewmodels/transaction_viewmodel.dart';
+import '../widgets/filter_bottom_sheet.dart';
+import '../widgets/summary_card.dart';
+import '../widgets/transaction_item.dart';
 import '../widgets/search_text_field.dart';
 
-class HomeView extends GetView<TransactionViewModel> {
-  HomeView({
-    super.key,
-  }); //const olamaz çünkü İçindeki tüm field’lar da compile-time sabit olmalı.
+class TransactionsView extends StatefulWidget {
+  const TransactionsView({super.key});
+
+  @override
+  State<TransactionsView> createState() => _TransactionsViewState();
+}
+
+class _TransactionsViewState extends State<TransactionsView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
+    final controller = Get.find<TransactionViewModel>();
+
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text("Gelir Gider App"),
         actions: [
@@ -53,7 +63,7 @@ class HomeView extends GetView<TransactionViewModel> {
                     icon: Icons.arrow_upward,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: SummaryCard(
                     title: "Toplam Gider",
@@ -74,7 +84,7 @@ class HomeView extends GetView<TransactionViewModel> {
               ],
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -98,12 +108,12 @@ class HomeView extends GetView<TransactionViewModel> {
                       isScrollControlled: true,
                     );
                   },
-                  icon: const Icon(Icons.tune, color: const Color(0xFF8DBEAD)),
+                  icon: const Icon(Icons.tune, color: Color(0xFF8DBEAD)),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -161,40 +171,6 @@ class HomeView extends GetView<TransactionViewModel> {
             ),
           ),
         ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          controller.selectedDate.value = DateTime.now();
-          await Get.to(() => AddTransactionView());
-          controller.queryController.clear();
-          controller.clearSearch();
-        },
-        backgroundColor: const Color(0xFFE5A1AF),
-        child: const Icon(Icons.add, size: 30),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        color: const Color(0xFF8DBEAD),
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.grid_view, color: Colors.white),
-              ),
-              const SizedBox(width: 40),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.person),
-                color: Colors.white,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

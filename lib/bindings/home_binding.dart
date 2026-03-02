@@ -1,7 +1,7 @@
 import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
 import 'package:get/get.dart';
-
 import '../repositories/transaction_repository.dart';
+import '../viewmodels/main_layout_viewmodel.dart';
 
 class HomeBinding extends Bindings {
   @override
@@ -11,5 +11,8 @@ class HomeBinding extends Bindings {
     Get.lazyPut<TransactionViewModel>(
       () => TransactionViewModel(repository: Get.find()),
     );
+
+    Get.lazyPut<MainLayoutViewModel>(() => MainLayoutViewModel());
+
   }
 }
