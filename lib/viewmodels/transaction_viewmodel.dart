@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:get/get.dart';
@@ -91,21 +92,33 @@ class TransactionViewModel extends GetxController {
     hasMoreData.value = true;
     isLoadingMore.value = true;
 
-    _fetchTotals();
+    try {
+      _fetchTotals();
 
-    var fetchedTransactions = await repository.getTransactions(
-      limit: _limit,
-      offset: _currentOffset,
-      searchQuery: lastQuery,
-      categoryId: _getFilteredCategoryId(),
-      startDate: _getStartDateString(),
-    );
-    transactions.assignAll(fetchedTransactions);
+      var fetchedTransactions = await repository.getTransactions(
+        limit: _limit,
+        offset: _currentOffset,
+        searchQuery: lastQuery,
+        categoryId: _getFilteredCategoryId(),
+        startDate: _getStartDateString(),
+      );
+      transactions.assignAll(fetchedTransactions);
 
-    if (fetchedTransactions.length < _limit) {
-      hasMoreData.value = false;
+      if (fetchedTransactions.length < _limit) {
+        hasMoreData.value = false;
+      }
+    } catch (e) {
+      print("Veri Çekme Hatası: $e");
+      Get.snackbar(
+        "Bağlantı Hatası",
+        "Veriler yüklenemedi.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoadingMore.value = false;
     }
-    isLoadingMore.value = false;
   }
 
   void loadMoreTransactions() async {
@@ -133,14 +146,28 @@ class TransactionViewModel extends GetxController {
     isLoadingMore.value = false;
   }
 
-
   void deleteTransaction(String id) async {
-    await repository.deleteTransaction(id);
-    //transactions.removeWhere((element) => element.id == id);
-    searchTransactions(lastQuery);
+    try {
+      await repository.deleteTransaction(id);
+      searchTransactions(lastQuery);
+
+      Get.snackbar(
+        "Silindi",
+        "İşlem başarıyla silindi.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.black87,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Hata",
+        "İşlem silinirken bir sorun oluştu.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
-
-
 
   void clearSearch() {
     queryController.clear();
@@ -207,7 +234,6 @@ class TransactionViewModel extends GetxController {
   void applyFilters() {
     getTransactions();
   }
-
 
   Future<void> _fetchTotals() async {
     _totalIncome.value = await repository.getTotalAmount(

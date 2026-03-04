@@ -313,7 +313,7 @@ class _StatisticsViewState extends State<StatisticsView>
                                 shape: BoxShape.circle,
                               ),
                             ),
-                          if (!isSelected) const SizedBox(height: 5),
+                          if (!isSelected) const SizedBox(height:5),
                         ],
                       ),
                     );

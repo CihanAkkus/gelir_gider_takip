@@ -49,30 +49,54 @@ class AddTransactionViewModel extends GetxController {
       return;
     }
 
+    final String rawAmount = amountController.text.replaceAll(',', '.');
+    final double? parsedAmount = double.tryParse(rawAmount);
+
+    if (parsedAmount == null || parsedAmount <= 0) {
+      Get.snackbar(
+        "Geçersiz Miktar",
+        "Lütfen geçerli bir tutar giriniz. (Örn: 150.50)",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     final newTx = TransactionModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       categoryId: selectedCategory.value!.id,
       title: selectedCategory.value!.name,
-      description: descController.text,
-      amount:
-          double.tryParse(amountController.text.replaceAll(',', '.')) ?? 0.0,
+      description: descController.text.trim(),
+      amount: parsedAmount,
       date: selectedDate.value,
       type: isGider.value ? TransactionType.gider : TransactionType.gelir,
     );
 
-    await repository.addTransaction(newTx);
+    try {
+      await repository.addTransaction(newTx);
 
-    final txController = Get.find<TransactionViewModel>();
-    txController.getTransactions();
+      final txController = Get.find<TransactionViewModel>();
+      txController.getTransactions();
 
-    Get.back();
+      Get.back();
 
-    Get.snackbar(
-      "Başarılı",
-      "İşlem başarıyla eklendi",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
+      Get.snackbar(
+        "Başarılı",
+        "İşlem başarıyla eklendi",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print("KAYIT HATASI : $e");
+      Get.snackbar(
+        "Hata",
+        "İşlem kaydedilemedi. Lütfen tekrar deneyin.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
 }

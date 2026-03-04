@@ -58,6 +58,15 @@ class DbHelper {
                   $colCatIcon INTEGER
                 )
           """);
+          await db.execute(
+            "CREATE INDEX idx_transaction_type ON $_tableName ($colType)",
+          );
+          await db.execute(
+            "CREATE INDEX idx_transaction_category ON $_tableName ($colCategoryId)",
+          );
+          await db.execute(
+            "CREATE INDEX idx_transaction_date ON $_tableName ($colDate DESC)",
+          );
         },
       );
     } catch (e) {
