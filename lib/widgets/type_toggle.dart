@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../constants/app_colors.dart';
+
 class TypeToggle extends StatelessWidget {
   final RxBool isGider;
 
@@ -9,22 +11,23 @@ class TypeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
+      height: 50,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(25),
         border: Border.all(color: Colors.white12),
       ),
       child: Obx(
-            () => Row(
+        () => Row(
           children: [
             Expanded(
               child: GestureDetector(
                 onTap: () => isGider.value = true,
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
                     color: isGider.value
-                        ? const Color(0xFF8DBEAD)
+                        ? AppColors.expenseRed
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -54,10 +57,11 @@ class TypeToggle extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () => isGider.value = false,
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
                     color: !isGider.value
-                        ? const Color(0xFF8DBEAD)
+                        ? AppColors.incomeGreen
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(25),
                   ),

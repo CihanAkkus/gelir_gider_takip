@@ -38,6 +38,10 @@ DateTime getRandomDate() {
 TransactionType getRandomTypeEnum() {
   return random.nextBool() ? TransactionType.gelir : TransactionType.gider;
 }
+String getRandomCategoryId() {
+  int randomCatNum = random.nextInt(10) + 1; // 1 ile 10 arası sayı üretir
+  return "cat$randomCatNum";
+}
 
 // ------------------ Mock Kategori Ekleme ------------------ //
 
@@ -62,12 +66,29 @@ Future<void> insertMockCategories() async {
 }
 
 // ------------------ Mock Transaction Ekleme ------------------ //
-
 Future<void> insertMockTransactions(int count) async {
+  // Kategorilerimizin sabit listesi (ID ve İsim eşleşmesi için)
+  List<CategoryModel> categories = [
+    CategoryModel(id: "cat1", name: "Market", iconCodePoint: 0xe8cc),
+    CategoryModel(id: "cat2", name: "Fatura", iconCodePoint: 0xe53e),
+    CategoryModel(id: "cat3", name: "Kira", iconCodePoint: 0xe88a),
+    CategoryModel(id: "cat4", name: "Restoran", iconCodePoint: 0xe56c),
+    CategoryModel(id: "cat5", name: "Kahve", iconCodePoint: 0xe561),
+    CategoryModel(id: "cat6", name: "Online Alışveriş", iconCodePoint: 0xe14c),
+    CategoryModel(id: "cat7", name: "Yakıt", iconCodePoint: 0xe7c4),
+    CategoryModel(id: "cat8", name: "Kitap", iconCodePoint: 0xe865),
+    CategoryModel(id: "cat9", name: "Sinema", iconCodePoint: 0xe039),
+    CategoryModel(id: "cat10", name: "Hediye", iconCodePoint: 0xe8ce),
+  ];
+
   for (int i = 0; i < count; i++) {
+    // Listeden rastgele TEK BİR kategori seçiyoruz
+    CategoryModel randomCat = categories[random.nextInt(categories.length)];
+
     TransactionModel transaction = TransactionModel(
       id: "txn_${i + 1}",
-      title: getRandomTitle(),
+      categoryId: randomCat.id,         // Seçilen kategorinin ID'si (Örn: cat1)
+      title: randomCat.name,            // Seçilen kategorinin TAM ADI (Örn: Market)
       description: "Test açıklama ${i + 1}",
       amount: getRandomAmount(),
       date: getRandomDate(),

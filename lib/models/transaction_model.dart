@@ -2,6 +2,7 @@ enum TransactionType { gelir, gider }
 
 class TransactionModel {
   final String id;
+  final String categoryId;
   final String title;
   final String description;
   final double amount;
@@ -10,6 +11,7 @@ class TransactionModel {
 
   TransactionModel({
     required this.id,
+    required this.categoryId,
     required this.title,
     required this.description,
     required this.amount,
@@ -20,6 +22,7 @@ class TransactionModel {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
+      "categoryId": categoryId,
       "title": title,
       "description": description,
       "amount": amount,
@@ -31,6 +34,7 @@ class TransactionModel {
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
       id: json['id'],
+      categoryId: json['categoryId'] ?? '',
       title: json['title'],
       description: json['description'],
       amount: json['amount'],

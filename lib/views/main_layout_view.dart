@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/viewmodels/main_layout_viewmodel.dart';
+import 'package:gelir_gider_takip/views/statistics_view.dart';
 import 'package:gelir_gider_takip/views/transactions_view.dart';
 import 'package:get/get.dart';
+
+import '../constants/app_colors.dart';
 
 class MainLayoutView extends GetView<MainLayoutViewModel> {
   const MainLayoutView({super.key});
@@ -10,7 +13,7 @@ class MainLayoutView extends GetView<MainLayoutViewModel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.background,
       // Gövdeyi PageView ile sarıyoruz. Yatay swipe yeteneğini bu sağlıyor.
       body: PageView(
         controller: controller.pageController,
@@ -18,25 +21,20 @@ class MainLayoutView extends GetView<MainLayoutViewModel> {
         physics: const BouncingScrollPhysics(), //scroll efekti
         children: const [
           TransactionsView(),
-          Center(
-            child: Text(
-              "2. Sayfa: İstatistikler ve Grafikler",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
+          StatisticsView()
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.navigateToAddTransaction(),
-        backgroundColor: const Color(0xFFE5A1AF),
+        backgroundColor: AppColors.accentBlue,
         child: const Icon(Icons.add, size: 30),
       ),
       bottomNavigationBar: Obx(() {
         return BottomAppBar(
           shape: const CircularNotchedRectangle(),
           notchMargin: 8,
-          color: const Color(0xFF8DBEAD),
+          color: AppColors.surface,
           child: SizedBox(
             height: 60,
             child: Row(
@@ -47,8 +45,8 @@ class MainLayoutView extends GetView<MainLayoutViewModel> {
                   icon: Icon(
                     Icons.grid_view,
                     color: controller.currentIndex.value == 0
-                        ? Colors.white
-                        : Colors.white54,
+                        ? AppColors.accentBlue
+                        : AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(width: 40),
@@ -57,8 +55,8 @@ class MainLayoutView extends GetView<MainLayoutViewModel> {
                   icon: Icon(
                     Icons.bar_chart_rounded,
                     color: controller.currentIndex.value == 1
-                        ? Colors.white
-                        : Colors.white54,
+                        ? AppColors.accentBlue
+                        : AppColors.textSecondary,
                   ),
                 ),
               ],

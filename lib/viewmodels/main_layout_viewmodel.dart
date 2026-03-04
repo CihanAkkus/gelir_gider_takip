@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
 import 'package:get/get.dart';
 
 import '../views/add_transaction_view.dart';
+import 'add_transaction_viewmodel.dart';
 
 class MainLayoutViewModel extends GetxController {
   late PageController pageController;
@@ -34,11 +34,15 @@ class MainLayoutViewModel extends GetxController {
     currentIndex.value = index;
   }//kullanıcı kaydırınca aktif sayfanın indexi parametre olarak buraya geliyor
 
+
+
   Future<void> navigateToAddTransaction() async {
-    final txController = Get.find<TransactionViewModel>();
-
-    txController.selectedDate.value = DateTime.now();
-
-    await Get.to(() => AddTransactionView());
+    await Get.to(
+          () => AddTransactionView(),
+      binding: BindingsBuilder(() {
+        Get.put(AddTransactionViewModel(repository: Get.find()));
+      }),
+    );
   }
+
 }

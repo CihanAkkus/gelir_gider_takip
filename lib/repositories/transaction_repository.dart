@@ -46,14 +46,14 @@ class TransactionRepository {
     int limit = 20,
     int offset = 0,
     String? searchQuery,
-    String? categoryName,
+    String? categoryId,
     String? startDate,
   }) async {
     var data = await DbHelper.queryTransactions(
       limit: limit,
       offset: offset,
       searchQuery: searchQuery,
-      categoryName: categoryName,
+      categoryId: categoryId,
       startDate: startDate,
     );
     return data.map((item) => TransactionModel.fromJson(item)).toList();
@@ -72,13 +72,13 @@ class TransactionRepository {
   Future<double> getTotalAmount(
       String type, {
         String? searchQuery,
-        String? categoryName,
+        String? categoryId,
         String? startDate,
       }) async {
     return await DbHelper.calculateTotalAmount(
       type,
       searchQuery: searchQuery,
-      categoryName: categoryName,
+      categoryId: categoryId,
       startDate: startDate,
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../constants/app_colors.dart';
 import '../mock_data/mock_data.dart';
 import '../viewmodels/transaction_viewmodel.dart';
 import '../widgets/filter_bottom_sheet.dart';
@@ -33,6 +34,7 @@ class _TransactionsViewState extends State<TransactionsView>
           IconButton(
             onPressed: () async {
               await runMockData();
+              controller.getCategories();//mockdata için
               controller.getTransactions();
             },
             icon: const Icon(Icons.downloading),
@@ -59,7 +61,7 @@ class _TransactionsViewState extends State<TransactionsView>
                         ),
                       ),
                     ),
-                    color: const Color(0xFF8DBEAD),
+                    color: AppColors.incomeGreen,
                     icon: Icons.arrow_upward,
                   ),
                 ),
@@ -77,7 +79,7 @@ class _TransactionsViewState extends State<TransactionsView>
                         ),
                       ),
                     ),
-                    color: const Color(0xFFE5A1AF),
+                    color: AppColors.expenseRed,
                     icon: Icons.arrow_downward,
                   ),
                 ),
@@ -108,7 +110,7 @@ class _TransactionsViewState extends State<TransactionsView>
                       isScrollControlled: true,
                     );
                   },
-                  icon: const Icon(Icons.tune, color: Color(0xFF8DBEAD)),
+                  icon: const Icon(Icons.tune, color: AppColors.incomeGreen),
                 ),
               ),
             ],
@@ -128,7 +130,7 @@ class _TransactionsViewState extends State<TransactionsView>
                   if (controller.isLoadingMore.value) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFF8DBEAD),
+                        color: AppColors.incomeGreen,
                       ),
                     );
                   }
@@ -151,7 +153,7 @@ class _TransactionsViewState extends State<TransactionsView>
                             padding: EdgeInsets.symmetric(vertical: 20),
                             child: Center(
                               child: CircularProgressIndicator(
-                                color: Color(0xFF8DBEAD),
+                                color: AppColors.incomeGreen,
                               ),
                             ),
                           );

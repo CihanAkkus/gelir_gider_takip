@@ -3,14 +3,11 @@ import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:get/get.dart';
 import 'package:gelir_gider_takip/repositories/transaction_repository.dart';
-import '../services/db_helper.dart';
 
 class TransactionViewModel extends GetxController {
   //controllers, memory leak için önlem
   final TextEditingController queryController = TextEditingController();
   final ScrollController scrollController = ScrollController();
-  final TextEditingController amountController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
 
   final TransactionRepository repository;
 
@@ -28,7 +25,6 @@ class TransactionViewModel extends GetxController {
   var categories = <CategoryModel>[].obs;
 
   var selectedCategory = Rxn<CategoryModel>();
-  var selectedDate = DateTime.now().obs;
 
   var filterDateList = [
     "Tümü",
@@ -48,9 +44,9 @@ class TransactionViewModel extends GetxController {
   var _totalExpense = 0.0.obs;
 
   double get totalIncome => _totalIncome.value;
+
   double get totalExpense => _totalExpense.value;
 
-  var isGider = true.obs;
   String lastQuery = "";
 
   @override
@@ -73,8 +69,6 @@ class TransactionViewModel extends GetxController {
   void onClose() {
     scrollController.dispose();
     queryController.dispose();
-    amountController.dispose();
-    descController.dispose();
     super.onClose();
   }
 
@@ -103,7 +97,7 @@ class TransactionViewModel extends GetxController {
       limit: _limit,
       offset: _currentOffset,
       searchQuery: lastQuery,
-      categoryName: selectedFilteredCategory.value,
+      categoryId: _getFilteredCategoryId(),
       startDate: _getStartDateString(),
     );
     transactions.assignAll(fetchedTransactions);
@@ -124,7 +118,7 @@ class TransactionViewModel extends GetxController {
       limit: _limit,
       offset: _currentOffset,
       searchQuery: lastQuery,
-      categoryName: selectedFilteredCategory.value,
+      categoryId: _getFilteredCategoryId(),
       startDate: _getStartDateString(),
     );
 
@@ -139,11 +133,6 @@ class TransactionViewModel extends GetxController {
     isLoadingMore.value = false;
   }
 
-  void addTransaction(TransactionModel transaction) async {
-    await repository.addTransaction(transaction);
-    //transactions.add(transaction);
-    searchTransactions("");
-  }
 
   void deleteTransaction(String id) async {
     await repository.deleteTransaction(id);
@@ -151,7 +140,10 @@ class TransactionViewModel extends GetxController {
     searchTransactions(lastQuery);
   }
 
+
+
   void clearSearch() {
+    queryController.clear();
     searchTransactions("");
   }
 
@@ -197,32 +189,41 @@ class TransactionViewModel extends GetxController {
     return targetDate.toIso8601String();
   }
 
+  String? _getFilteredCategoryId() {
+    if (selectedFilteredCategory.value == "Tümü") return null;
+
+    try {
+      final category = categories.firstWhere(
+        (cat) => cat.name == selectedFilteredCategory.value,
+      );
+      return category.id;
+    } catch (e) {
+      return null;
+    }
+  }
+
   //eğer filtreleme işlemleri çok artarsa, bir helper method ile ayrı bir class-
   //içerisinde yazabiliriz  bu methodu
   void applyFilters() {
     getTransactions();
   }
 
-  void updateDate(DateTime date) {
-    selectedDate.value = date;
-  }
 
   Future<void> _fetchTotals() async {
     _totalIncome.value = await repository.getTotalAmount(
       TransactionType.gelir.name,
       searchQuery: lastQuery,
-      categoryName: selectedFilteredCategory.value,
+      categoryId: _getFilteredCategoryId(),
       startDate: _getStartDateString(),
     );
 
     _totalExpense.value = await repository.getTotalAmount(
       TransactionType.gider.name,
       searchQuery: lastQuery,
-      categoryName: selectedFilteredCategory.value,
+      categoryId: _getFilteredCategoryId(),
       startDate: _getStartDateString(),
     );
   }
-
 
   List<String> get categoryNames => [
     "Tümü",

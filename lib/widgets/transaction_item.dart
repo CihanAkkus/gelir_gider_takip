@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
 import 'package:gelir_gider_takip/viewmodels/transaction_viewmodel.dart';
 
+import '../constants/app_colors.dart';
+
 class TransactionItem extends StatelessWidget {
   final TransactionModel item;
   final TransactionViewModel controller;
@@ -24,11 +26,11 @@ class TransactionItem extends StatelessWidget {
         ),
         child: Icon(
           item.type == TransactionType.gelir
-              ? Icons.wallet
-              : Icons.directions_bus,
+              ? Icons.arrow_upward
+              : Icons.arrow_downward,
           color: item.type == TransactionType.gelir
-              ? const Color(0xFF8DBEAD)
-              : const Color(0xFFE5A1AF),
+              ? AppColors.incomeGreen
+              : AppColors.expenseRed,
         ),
       ),
       title: Text(
@@ -46,9 +48,10 @@ class TransactionItem extends StatelessWidget {
               Text(
                 "${item.type == TransactionType.gelir ? '+' : '-'} ₺ ${item.amount.toStringAsFixed(2)}",
                 style: TextStyle(
-                  color: item.type == TransactionType.gelir
-                      ? const Color(0xFF8DBEAD)
-                      : const Color(0xFFE5A1AF),
+                  color:Colors.white,
+                  /*item.type == TransactionType.gelir
+                      ? AppColors.incomeGreen
+                      : AppColors.expenseRed,*/
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -68,8 +71,8 @@ class TransactionItem extends StatelessWidget {
                 textConfirm: "Evet",
                 textCancel: "Hayır",
                 confirmTextColor: Colors.white,
-                buttonColor: Colors.redAccent,
-                cancelTextColor: Colors.redAccent,
+                buttonColor: AppColors.expenseRed,
+                cancelTextColor: AppColors.expenseRed,
                 onConfirm: () {
                   controller.deleteTransaction(item.id);
                   Get.back();
@@ -77,7 +80,7 @@ class TransactionItem extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.delete_outline),
-            color: Colors.redAccent,
+            color: AppColors.expenseRed,
             iconSize: 20,
           ),
         ],

@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/bindings/home_binding.dart';
 import 'package:gelir_gider_takip/views/main_layout_view.dart';
 import 'package:get/get.dart';
-import 'package:gelir_gider_takip/views/home_view.dart';
 import 'package:gelir_gider_takip/services/db_helper.dart';
-
-import 'mock_data/mock_data.dart';
+import 'constants/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await DbHelper.initDb();
-  //await runMockData();
 
   runApp(const MyApp());
 }
@@ -26,14 +23,16 @@ class MyApp extends StatelessWidget {
       title: "Gelir Gider App",
       initialBinding: HomeBinding(),
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        primaryColor: const Color(0xFF8DBEAD),
+        scaffoldBackgroundColor: AppColors.background,
+        primaryColor: AppColors.accentBlue,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF8DBEAD),
+          backgroundColor: AppColors.background,
+          scrolledUnderElevation: 0.0,
           elevation: 0,
+          centerTitle: true,
         ),
       ),
-      home:  MainLayoutView(),
+      home: MainLayoutView(),
     );
   }
 }

@@ -12,6 +12,7 @@ class DbHelper {
 
   //işlem sütunları
   static const String colId = 'id';
+  static const String colCategoryId = 'categoryId';
   static const String colTitle = 'title';
   static const String colAmount = 'amount';
   static const String colDesc = 'description';
@@ -42,6 +43,7 @@ class DbHelper {
           await db.execute("""
   CREATE TABLE $_tableName (
     $colId TEXT PRIMARY KEY,
+    $colCategoryId TEXT,
     $colTitle TEXT,
     $colDesc TEXT,
     $colAmount REAL,
@@ -71,7 +73,7 @@ class DbHelper {
     int limit = 20,
     int offset = 0,
     String? searchQuery,
-    String? categoryName,
+    String? categoryId,
     String? startDate,
   }) async {
     String whereClause = "1=1";
@@ -82,9 +84,9 @@ class DbHelper {
       whereArgs.add('%$searchQuery%');
     }
 
-    if (categoryName != null && categoryName != "Tümü") {
-      whereClause += " AND $colTitle = ?";
-      whereArgs.add(categoryName);
+    if (categoryId != null && categoryId.isNotEmpty) {
+      whereClause += " AND $colCategoryId = ?";
+      whereArgs.add(categoryId);
     }
 
     if (startDate != null) {
@@ -105,7 +107,7 @@ class DbHelper {
   static Future<double> calculateTotalAmount(
     String type, {
     String? searchQuery,
-    String? categoryName,
+    String? categoryId,
     String? startDate,
   }) async {
     String whereClause = "$colType = ?";
@@ -116,9 +118,9 @@ class DbHelper {
       whereArgs.add('%$searchQuery%');
     }
 
-    if (categoryName != null && categoryName != "Tümü") {
-      whereClause += " AND $colTitle = ?";
-      whereArgs.add(categoryName);
+    if (categoryId != null && categoryId.isNotEmpty) {
+      whereClause += " AND $colCategoryId = ?";
+      whereArgs.add(categoryId);
     }
 
     if (startDate != null) {
@@ -136,8 +138,6 @@ class DbHelper {
     }
     return 0.0;
   }
-
-
 
   static Future<int> delete(String id) async {
     return await _db!.delete(_tableName, where: 'id = ?', whereArgs: [id]);

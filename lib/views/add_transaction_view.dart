@@ -7,15 +7,19 @@ import 'package:gelir_gider_takip/widgets/date_selector.dart';
 import 'package:gelir_gider_takip/widgets/save_button.dart';
 import 'package:get/get.dart';
 
-class AddTransactionView extends GetView<TransactionViewModel> {
+import '../constants/app_colors.dart';
+import '../viewmodels/add_transaction_viewmodel.dart';
+
+class AddTransactionView extends GetView<AddTransactionViewModel> {
 
 
   AddTransactionView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final txController = Get.find<TransactionViewModel>();
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "İşlem Ekle",
@@ -44,14 +48,14 @@ class AddTransactionView extends GetView<TransactionViewModel> {
                           () => DropdownButtonHideUnderline(
                             child: DropdownButton<CategoryModel>(
                               value: controller.selectedCategory.value,
-                              dropdownColor: const Color(0xFF1E1E1E),
+                              dropdownColor: AppColors.surface,
                               isExpanded: true,
                               borderRadius: BorderRadius.circular(12),
                               icon: const Icon(
                                 Icons.arrow_drop_down,
                                 color: Colors.white54,
                               ),
-                              items: controller.categories.map((cat) {
+                              items: txController.categories.map((cat) {
                                 return DropdownMenuItem<CategoryModel>(
                                   value: cat,
                                   child: Row(
@@ -61,7 +65,7 @@ class AddTransactionView extends GetView<TransactionViewModel> {
                                           cat.iconCodePoint,
                                           fontFamily: 'MaterialIcons',
                                         ),
-                                        color: const Color(0xFF8DBEAD),
+                                        color: Colors.white54,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 10),
@@ -84,11 +88,11 @@ class AddTransactionView extends GetView<TransactionViewModel> {
                       ),
                       IconButton(
                         onPressed: () {
-                          _showAddCategoryDialog(context, controller);
+                          _showAddCategoryDialog(context, txController);
                         },
                         icon: const Icon(
                           Icons.add_circle_outline,
-                          color: Color(0xFF8DBEAD),
+                          color: Colors.white54,
                           size: 28,
                         ),
                         constraints: const BoxConstraints(),
@@ -134,8 +138,6 @@ class AddTransactionView extends GetView<TransactionViewModel> {
             const SizedBox(height: 40),
             SaveButton(
               controller: controller,
-              amountController: controller.amountController,
-              descController: controller.descController,
             ),
           ],
         ),
@@ -154,7 +156,7 @@ void _showAddCategoryDialog(
   Get.defaultDialog(
     title: "Yeni Kategori Ekle",
     titleStyle: const TextStyle(color: Colors.white),
-    backgroundColor: const Color(0xFF1E1E1E),
+    backgroundColor: AppColors.surface,
     content: Padding(
       padding: EdgeInsets.all(8),
       child: TextField(
@@ -163,7 +165,7 @@ void _showAddCategoryDialog(
         decoration: InputDecoration(
           hintText: "Kategori Adı",
           hintStyle: const TextStyle(color: Colors.white24),
-          prefixIcon: const Icon(Icons.edit, color: Color(0xFF8DBEAD)),
+          prefixIcon: const Icon(Icons.edit, color: Colors.white54),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: Colors.white24),
@@ -174,7 +176,7 @@ void _showAddCategoryDialog(
     textConfirm: "Ekle",
     textCancel: "Vazgeç",
     confirmTextColor: Colors.white,
-    buttonColor: const Color(0xFF8DBEAD),
+    buttonColor: AppColors.accentBlue,
     onConfirm: () {
       final String inputName = nameController.text.trim();
 
