@@ -59,8 +59,6 @@ class TransactionRepository {
     return data.map((item) => TransactionModel.fromJson(item)).toList();
   }
 
-
-
   Future<void> addTransaction(TransactionModel transaction) async {
     await DbHelper.insert(transaction);
   }
@@ -69,12 +67,19 @@ class TransactionRepository {
     await DbHelper.delete(id);
   }
 
+  Future<List<Map<String, dynamic>>> getWeeklySummary(
+    String type,
+    String startDate,
+  ) async {
+    return await DbHelper.getWeeklySummary(type, startDate);
+  }
+
   Future<double> getTotalAmount(
-      String type, {
-        String? searchQuery,
-        String? categoryId,
-        String? startDate,
-      }) async {
+    String type, {
+    String? searchQuery,
+    String? categoryId,
+    String? startDate,
+  }) async {
     return await DbHelper.calculateTotalAmount(
       type,
       searchQuery: searchQuery,
@@ -83,5 +88,3 @@ class TransactionRepository {
     );
   }
 }
-
-

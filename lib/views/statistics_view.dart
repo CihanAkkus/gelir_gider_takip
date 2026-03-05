@@ -218,19 +218,11 @@ class _StatisticsViewState extends State<StatisticsView>
                       minX: 0,
                       maxX: 6,
                       minY: 0,
-                      maxY: 11,
+                      //maxY: 11,
                       lineBarsData: [
                         if (statisticsController.showIncome.value)
                           LineChartBarData(
-                            spots: const [
-                              FlSpot(0, 3),
-                              FlSpot(1, 5),
-                              FlSpot(2, 4),
-                              FlSpot(3, 8),
-                              FlSpot(4, 5),
-                              FlSpot(5, 7),
-                              FlSpot(6, 4),
-                            ],
+                            spots:statisticsController.incomeSpots.toList(),
                             isCurved: true,
                             color: AppColors.incomeGreen,
                             barWidth: 3.5,
@@ -250,15 +242,7 @@ class _StatisticsViewState extends State<StatisticsView>
                           ),
                         if (statisticsController.showExpense.value)
                           LineChartBarData(
-                            spots: const [
-                              FlSpot(0, 6),
-                              FlSpot(1, 3),
-                              FlSpot(2, 5),
-                              FlSpot(3, 4),
-                              FlSpot(4, 7),
-                              FlSpot(5, 4),
-                              FlSpot(6, 9),
-                            ],
+                            spots: statisticsController.expenseSpots.toList(),
                             isCurved: true,
                             color: AppColors.expenseRed,
                             barWidth: 3.5,
@@ -313,7 +297,7 @@ class _StatisticsViewState extends State<StatisticsView>
                                 shape: BoxShape.circle,
                               ),
                             ),
-                          if (!isSelected) const SizedBox(height:5),
+                          if (!isSelected) const SizedBox(height: 5),
                         ],
                       ),
                     );

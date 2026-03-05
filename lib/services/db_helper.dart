@@ -148,6 +148,23 @@ class DbHelper {
     return 0.0;
   }
 
+  static Future<List<Map<String, dynamic>>> getWeeklySummary(
+    String type,
+    String startDate,
+  ) async {
+    if (_db == null) return [];
+
+    String query =
+        '''
+      SELECT strftime('%w', $colDate) as dayOfWeek, SUM($colAmount) as total
+      FROM $_tableName
+      WHERE $colType = ? AND $colDate >= ?
+      GROUP BY dayOfWeek
+    ''';
+
+    return await _db!.rawQuery(query, [type, startDate]);
+  }
+
   static Future<int> delete(String id) async {
     return await _db!.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
