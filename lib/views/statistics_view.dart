@@ -166,10 +166,42 @@ class _StatisticsViewState extends State<StatisticsView>
                 child: Obx(() {
                   return LineChart(
                     LineChartData(
+                      clipData: const FlClipData.none(),
+                      minX: -0.3,
+                      maxX: statisticsController.maxX + 0.3,
+                      minY: 0,
+                      borderData: FlBorderData(show: false),
+
                       gridData: FlGridData(
                         show: true,
                         drawHorizontalLine: false,
                         drawVerticalLine: true,
+                        verticalInterval: 1,
+                        //baselineX: 0,
+                        checkToShowVerticalLine: (value) {
+                          if (value % 1 != 0) return false;
+
+                          final filter =
+                              statisticsController.selectedTimeFilter.value;
+                          int index = value.toInt();
+
+                          if (index < 0 || index > statisticsController.maxX)
+                            return false;
+
+                          switch (filter) {
+                            case 'Day':
+                              if (index % 4 == 0 || index == 23) return true;
+                              return false;
+                            case 'Week':
+                              return true;
+                            case 'Month':
+                              if (index % 5 == 0) return true;
+                              return false;
+                            case 'Year':
+                              return true;
+                          }
+                          return false;
+                        },
                         getDrawingVerticalLine: (value) {
                           return FlLine(
                             color: Colors.white.withOpacity(0.2),
@@ -178,88 +210,158 @@ class _StatisticsViewState extends State<StatisticsView>
                           );
                         },
                       ),
+
                       titlesData: FlTitlesData(
                         show: true,
-                        rightTitles: AxisTitles(
+                        rightTitles: const AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
                         ),
-                        bottomTitles: AxisTitles(
+                        bottomTitles: const AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
                         ),
-                        leftTitles: AxisTitles(
+                        leftTitles: const AxisTitles(
                           sideTitles: SideTitles(showTitles: false),
                         ),
                         topTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
+                            interval: 1,
                             reservedSize: 35,
                             getTitlesWidget: (value, meta) {
-                              const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-                              if (value.toInt() >= 0 &&
-                                  value.toInt() < days.length) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                    days[value.toInt()],
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                );
+                              if (value % 1 != 0) return const Text('');
+
+                              int index = value.toInt();
+
+                              if (index < 0 ||
+                                  index > statisticsController.maxX)
+                                return const Text('');
+
+                              final filter =
+                                  statisticsController.selectedTimeFilter.value;
+                              String text = '';
+
+                              switch (filter) {
+                                case 'Day':
+                                  if (index % 4 == 0) {
+                                    text =
+                                        '${index.toString().padLeft(2, '0')}:00';
+                                  } else if (index == 23) {
+                                    text = '24:00';
+                                  }
+                                  break;
+                                case 'Week':
+                                  const days = [
+                                    'M',
+                                    'T',
+                                    'W',
+                                    'T',
+                                    'F',
+                                    'S',
+                                    'S',
+                                  ];
+                                  if (index >= 0 && index < 7)
+                                    text = days[index];
+                                  break;
+                                case 'Month':
+                                  if (index % 5 == 0) {
+                                    text = '${index + 1}';
+                                  }
+                                  break;
+                                case 'Year':
+                                  const months = [
+                                    'Jan',
+                                    'Feb',
+                                    'Mar',
+                                    'Apr',
+                                    'May',
+                                    'Jun',
+                                    'Jul',
+                                    'Aug',
+                                    'Sep',
+                                    'Oct',
+                                    'Nov',
+                                    'Dec',
+                                  ];
+                                  if (index >= 0 && index < 12)
+                                    text = months[index];
+                                  break;
                               }
-                              return const Text('');
+
+                              if (text.isEmpty) return const Text('');
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Text(
+                                  text,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ),
                       ),
-                      borderData: FlBorderData(show: false),
-                      minX: 0,
-                      maxX: 6,
-                      minY: 0,
-                      //maxY: 11,
+
                       lineBarsData: [
-                        if (statisticsController.showIncome.value)
-                          LineChartBarData(
-                            spots:statisticsController.incomeSpots.toList(),
-                            isCurved: true,
-                            color: AppColors.incomeGreen,
-                            barWidth: 3.5,
-                            isStrokeCapRound: true,
-                            dotData: FlDotData(show: false),
-                            belowBarData: BarAreaData(
-                              show: true,
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.incomeGreen.withOpacity(0.4),
-                                  AppColors.incomeGreen.withOpacity(0.0),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
+                        LineChartBarData(
+                          show: true,
+                          spots: statisticsController.showIncome.value
+                              ? statisticsController.incomeSpots.toList()
+                              : statisticsController.incomeSpots
+                                    .map((e) => FlSpot(e.x, 0))
+                                    .toList(),
+                          isCurved: true,
+                          color: statisticsController.showIncome.value
+                              ? AppColors.incomeGreen
+                              : Colors.transparent,
+                          barWidth: 3.5,
+                          isStrokeCapRound: true,
+                          dotData: const FlDotData(show: false),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            gradient: LinearGradient(
+                              colors: [
+                                statisticsController.showIncome.value
+                                    ? AppColors.incomeGreen.withOpacity(0.4)
+                                    : Colors.transparent,
+                                Colors.transparent,
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
                           ),
-                        if (statisticsController.showExpense.value)
-                          LineChartBarData(
-                            spots: statisticsController.expenseSpots.toList(),
-                            isCurved: true,
-                            color: AppColors.expenseRed,
-                            barWidth: 3.5,
-                            isStrokeCapRound: true,
-                            dotData: FlDotData(show: false),
-                            belowBarData: BarAreaData(
-                              show: true,
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.expenseRed.withOpacity(0.4),
-                                  AppColors.expenseRed.withOpacity(0.0),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
+                        ),
+                        LineChartBarData(
+                          show: true,
+                          spots: statisticsController.showExpense.value
+                              ? statisticsController.expenseSpots.toList()
+                              : statisticsController.expenseSpots
+                                    .map((e) => FlSpot(e.x, 0))
+                                    .toList(),
+                          isCurved: true,
+                          color: statisticsController.showExpense.value
+                              ? AppColors.expenseRed
+                              : Colors.transparent,
+                          barWidth: 3.5,
+                          isStrokeCapRound: true,
+                          dotData: const FlDotData(show: false),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            gradient: LinearGradient(
+                              colors: [
+                                statisticsController.showExpense.value
+                                    ? AppColors.expenseRed.withOpacity(0.4)
+                                    : Colors.transparent,
+                                Colors.transparent,
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
                           ),
+                        ),
                       ],
                     ),
                   );

@@ -16,7 +16,7 @@ class TransactionViewModel extends GetxController {
 
   int _currentOffset = 0;
   final int _limit =
-      20; //const yapmadık çünkü ilerde değiştirebilirim run-time ile belli olsun
+  20; //const yapmadık çünkü ilerde değiştirebilirim run-time ile belli olsun
 
   var isLoadingMore = false.obs;
   var hasMoreData = true.obs;
@@ -195,7 +195,7 @@ class TransactionViewModel extends GetxController {
           now.year,
           now.month,
           1,
-        ).subtract(const Duration(days: 1));
+        );
         break;
       case "Son 1 Ay":
         targetDate = now.subtract(const Duration(days: 30));
@@ -207,7 +207,7 @@ class TransactionViewModel extends GetxController {
         targetDate = DateTime(now.year, now.month - 6, now.day);
         break;
       case "Bu Yıl":
-        targetDate = DateTime(now.year, 1, 1).subtract(const Duration(days: 1));
+        targetDate = DateTime(now.year, 1, 1);
         break;
       case "Tümü":
       default:
@@ -221,16 +221,13 @@ class TransactionViewModel extends GetxController {
 
     try {
       final category = categories.firstWhere(
-        (cat) => cat.name == selectedFilteredCategory.value,
+            (cat) => cat.name == selectedFilteredCategory.value,
       );
       return category.id;
     } catch (e) {
       return null;
     }
   }
-
-  //eğer filtreleme işlemleri çok artarsa, bir helper method ile ayrı bir class-
-  //içerisinde yazabiliriz  bu methodu
   void applyFilters() {
     getTransactions();
   }
@@ -251,8 +248,9 @@ class TransactionViewModel extends GetxController {
     );
   }
 
-  List<String> get categoryNames => [
-    "Tümü",
-    ...categories.map((category) => category.name).toList(),
-  ];
+  List<String> get categoryNames =>
+      [
+        "Tümü",
+        ...categories.map((category) => category.name).toList(),
+      ];
 }

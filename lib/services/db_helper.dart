@@ -148,21 +148,40 @@ class DbHelper {
     return 0.0;
   }
 
-  static Future<List<Map<String, dynamic>>> getWeeklySummary(
+  static Future<List<Map<String, dynamic>>> getChartSummary(
     String type,
     String startDate,
+    String endDate,
+    String timeFilter,
   ) async {
     if (_db == null) return [];
 
+    String dateFormat;
+    switch (timeFilter) {
+      case 'Day':
+        dateFormat = '%H';
+        break;
+      case 'Month':
+        dateFormat = '%d';
+        break;
+      case 'Year':
+        dateFormat = '%m';
+        break;
+      case 'Week':
+      default:
+        dateFormat = '%w';
+        break;
+    }
+
     String query =
         '''
-      SELECT strftime('%w', $colDate) as dayOfWeek, SUM($colAmount) as total
+      SELECT strftime('$dateFormat', substr($colDate, 1, 19)) as timeUnit, SUM($colAmount) as total
       FROM $_tableName
-      WHERE $colType = ? AND $colDate >= ?
-      GROUP BY dayOfWeek
+      WHERE $colType = ? AND $colDate >= ? AND $colDate <= ?
+      GROUP BY timeUnit
     ''';
 
-    return await _db!.rawQuery(query, [type, startDate]);
+    return await _db!.rawQuery(query, [type, startDate, endDate]);
   }
 
   static Future<int> delete(String id) async {

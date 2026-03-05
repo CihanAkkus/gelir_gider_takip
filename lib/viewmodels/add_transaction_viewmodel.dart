@@ -34,7 +34,15 @@ class AddTransactionViewModel extends GetxController {
   }
 
   void updateDate(DateTime date) {
-    selectedDate.value = date;
+    final now = DateTime.now();
+    selectedDate.value = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
   }
 
   Future<void> saveTransaction() async {

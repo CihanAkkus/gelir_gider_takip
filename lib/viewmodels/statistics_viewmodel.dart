@@ -5,12 +5,9 @@ import 'package:get/get.dart';
 
 class StatisticsViewModel extends GetxController {
   var selectedTimeFilter = 'Week'.obs;
-
   final List<String> timeFilters = ['Day', 'Week', 'Month', 'Year'];
-
   final RxList<FlSpot> incomeSpots = <FlSpot>[].obs;
   final RxList<FlSpot> expenseSpots = <FlSpot>[].obs;
-
   var showIncome = true.obs;
   var showExpense = true.obs;
 
@@ -20,53 +17,104 @@ class StatisticsViewModel extends GetxController {
     generateChartData();
   }
 
+  double get maxX {
+    final filter = selectedTimeFilter.value;
+    switch (filter) {
+      case 'Day':
+        return 23;
+      case 'Month':
+        return (DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day -
+                1)
+            .toDouble();
+      case 'Year':
+        return 11;
+      case 'Week':
+      default:
+        return 6;
+    }
+  }
+
   Future<void> generateChartData() async {
     final repository = Get.find<TransactionViewModel>().repository;
-    //yukarda binding sınıfı içerisinde biz zaten TransactionViewModel constructor'ına
-    //parametresini gönderiyoruz burada sadece ona yeni referans ile ulaşıyoruz
-    //herkes aynı controller'a ulaşıyor yani get.put özelinde böyle bu
-    //get.create olsaydı böyle 1 tane obje olmayacaktı sadece
-
+    final filter = selectedTimeFilter.value;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    var startOfWeek = today.subtract(
-      Duration(days: DateTime.now().weekday - 1),
-    );
+
+    DateTime startDate;
+    DateTime endDate;
+    int spotCount;
+
+    switch (filter) {
+      case 'Day':
+        startDate = today;
+        endDate = today
+            .add(const Duration(days: 1))
+            .subtract(const Duration(seconds: 1));
+        spotCount = 24;
+        break;
+      case 'Month':
+        startDate = DateTime(now.year, now.month, 1);
+        spotCount = DateTime(now.year, now.month + 1, 0).day;
+        endDate = DateTime(now.year, now.month, spotCount, 23, 59, 59);
+        break;
+      case 'Year':
+        startDate = DateTime(now.year, 1, 1);
+        endDate = DateTime(now.year, 12, 31, 23, 59, 59);
+        spotCount = 12;
+        break;
+      case 'Week':
+      default:
+        startDate = today.subtract(Duration(days: now.weekday - 1));
+        endDate = startDate.add(
+          const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
+        );
+        spotCount = 7;
+        break;
+    }
 
     List<FlSpot> tempIncome = List.generate(
-      7,
+      spotCount,
       (index) => FlSpot(index.toDouble(), 0.0),
     );
     List<FlSpot> tempExpense = List.generate(
-      7,
+      spotCount,
       (index) => FlSpot(index.toDouble(), 0.0),
     );
 
-    var expenseData = await repository.getWeeklySummary(
+    var expenseData = await repository.getChartSummary(
       TransactionType.gider.name,
-      startOfWeek.toIso8601String(),
+      startDate.toIso8601String(),
+      endDate.toIso8601String(),
+      filter,
     );
 
-    var incomeData = await repository.getWeeklySummary(
+    var incomeData = await repository.getChartSummary(
       TransactionType.gelir.name,
-      startOfWeek.toIso8601String(),
+      startDate.toIso8601String(),
+      endDate.toIso8601String(),
+      filter,
     );
 
-    for (var item in incomeData) {
-      int day = int.parse(item['dayOfWeek'].toString());
-      int index = (day == 0) ? 6 : (day - 1);
-      double y = double.parse(item['total'].toString());
+    void fillSpots(List<Map<String, dynamic>> data, List<FlSpot> spots) {
+      for (var item in data) {
+        if (item['timeUnit'] == null) continue;
 
-      tempIncome[index] = FlSpot(index.toDouble(), y);
+        int timeUnit = int.parse(item['timeUnit'].toString());
+        double y = double.parse(item['total'].toString());
+        int index = filter == 'Day'
+            ? timeUnit
+            : (filter == 'Week'
+                  ? ((timeUnit == 0) ? 6 : (timeUnit - 1))
+                  : timeUnit - 1);
+
+        if (index >= 0 && index < spotCount) {
+          spots[index] = FlSpot(index.toDouble(), y);
+        }
+      }
     }
 
-    for (var item in expenseData) {
-      int day = int.parse(item['dayOfWeek'].toString());
-      int index = (day == 0) ? 6 : (day - 1);
-      double y = double.parse(item['total'].toString());
-
-      tempExpense[index] = FlSpot(index.toDouble(), y);
-    }
+    fillSpots(incomeData, tempIncome);
+    fillSpots(expenseData, tempExpense);
 
     incomeSpots.assignAll(tempIncome);
     expenseSpots.assignAll(tempExpense);
@@ -81,7 +129,6 @@ class StatisticsViewModel extends GetxController {
     if (showIncome.value && !showExpense.value) {
       return;
     }
-
     showIncome.value = !showIncome.value;
   }
 
@@ -89,7 +136,6 @@ class StatisticsViewModel extends GetxController {
     if (showExpense.value && !showIncome.value) {
       return;
     }
-
     showExpense.value = !showExpense.value;
   }
 }

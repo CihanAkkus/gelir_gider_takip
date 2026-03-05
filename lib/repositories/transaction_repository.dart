@@ -67,11 +67,13 @@ class TransactionRepository {
     await DbHelper.delete(id);
   }
 
-  Future<List<Map<String, dynamic>>> getWeeklySummary(
+  Future<List<Map<String, dynamic>>> getChartSummary(
     String type,
     String startDate,
+    String endDate,
+    String timeFilter,
   ) async {
-    return await DbHelper.getWeeklySummary(type, startDate);
+    return await DbHelper.getChartSummary(type, startDate, endDate, timeFilter);
   }
 
   Future<double> getTotalAmount(
