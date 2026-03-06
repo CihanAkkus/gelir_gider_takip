@@ -133,13 +133,33 @@ class _StatisticsViewState extends State<StatisticsView>
               }),
               const SizedBox(height: 25),
               Obx(() {
-                return Text(
-                  "+ ₺ ${transactionsController.totalIncome.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (statisticsController.showIncome.value)
+                      Text(
+                        "+ ₺ ${statisticsController.periodTotalIncome.value.toStringAsFixed(2)}",
+                        style: const TextStyle(
+                          color: AppColors.incomeGreen,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                    if (statisticsController.showIncome.value &&
+                        statisticsController.showExpense.value)
+                      const SizedBox(width: 8),
+
+                    if (statisticsController.showExpense.value)
+                      Text(
+                        "- ₺ ${statisticsController.periodTotalExpense.value.toStringAsFixed(2)}",
+                        style: const TextStyle(
+                          color: AppColors.expenseRed,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                  ],
                 );
               }),
               const SizedBox(height: 25),

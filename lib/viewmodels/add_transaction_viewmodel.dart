@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gelir_gider_takip/viewmodels/statistics_viewmodel.dart';
 import 'package:get/get.dart';
 import '../models/category_model.dart';
 import '../models/transaction_model.dart';
@@ -86,6 +87,16 @@ class AddTransactionViewModel extends GetxController {
 
       final txController = Get.find<TransactionViewModel>();
       txController.getTransactions();
+
+      /* Güvenlik (Get.isRegistered): Kullanıcı uygulamaya girip grafikleri hiç
+      açmadan direkt "+" butonuna basıp işlem ekleyebilir. Bu durumda StatisticsViewModel
+      henüz hafızada yaratılmamış olabilir (çünkü lazyPut kullandık).
+      isRegistered diyerek "Eğer grafik sayfası daha önce açıldıysa ve hafızadaysa onu güncelle" dedik
+      ve çökme riskini sıfıra indirdik.*/
+
+      if (Get.isRegistered<StatisticsViewModel>()) {
+        Get.find<StatisticsViewModel>().generateChartData();
+      }
 
       Get.back();
 

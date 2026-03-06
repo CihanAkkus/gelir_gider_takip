@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gelir_gider_takip/models/category_model.dart';
 import 'package:gelir_gider_takip/models/transaction_model.dart';
@@ -15,14 +14,15 @@ class TransactionViewModel extends GetxController {
   TransactionViewModel({required this.repository}); //CONSTRUCTOR
 
   int _currentOffset = 0;
-  final int _limit =
-  20; //const yapmadık çünkü ilerde değiştirebilirim run-time ile belli olsun
+  final int _limit = 20;
+
+  //const yapmadık çünkü ilerde değiştirebilirim run-time ile belli olsun
 
   var isLoadingMore = false.obs;
   var hasMoreData = true.obs;
 
-  var transactions =
-      <TransactionModel>[].obs; //tüm verilerimizi koruduğumuz liste
+  var transactions = <TransactionModel>[]
+      .obs; //filtrelenmiş bir şekilde verilerimizi tuttuğumuz liste
   var categories = <CategoryModel>[].obs;
 
   var selectedCategory = Rxn<CategoryModel>();
@@ -191,11 +191,7 @@ class TransactionViewModel extends GetxController {
         targetDate = now.subtract(const Duration(days: 15));
         break;
       case "Bu Ay":
-        targetDate = DateTime(
-          now.year,
-          now.month,
-          1,
-        );
+        targetDate = DateTime(now.year, now.month, 1);
         break;
       case "Son 1 Ay":
         targetDate = now.subtract(const Duration(days: 30));
@@ -221,13 +217,14 @@ class TransactionViewModel extends GetxController {
 
     try {
       final category = categories.firstWhere(
-            (cat) => cat.name == selectedFilteredCategory.value,
+        (cat) => cat.name == selectedFilteredCategory.value,
       );
       return category.id;
     } catch (e) {
       return null;
     }
   }
+
   void applyFilters() {
     getTransactions();
   }
@@ -248,9 +245,8 @@ class TransactionViewModel extends GetxController {
     );
   }
 
-  List<String> get categoryNames =>
-      [
-        "Tümü",
-        ...categories.map((category) => category.name).toList(),
-      ];
+  List<String> get categoryNames => [
+    "Tümü",
+    ...categories.map((category) => category.name).toList(),
+  ];
 }

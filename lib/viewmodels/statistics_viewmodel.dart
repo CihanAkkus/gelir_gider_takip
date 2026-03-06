@@ -11,6 +11,9 @@ class StatisticsViewModel extends GetxController {
   var showIncome = true.obs;
   var showExpense = true.obs;
 
+  var periodTotalIncome = 0.0.obs;
+  var periodTotalExpense = 0.0.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -76,6 +79,7 @@ class StatisticsViewModel extends GetxController {
       spotCount,
       (index) => FlSpot(index.toDouble(), 0.0),
     );
+
     List<FlSpot> tempExpense = List.generate(
       spotCount,
       (index) => FlSpot(index.toDouble(), 0.0),
@@ -94,6 +98,22 @@ class StatisticsViewModel extends GetxController {
       endDate.toIso8601String(),
       filter,
     );
+
+    double incTotal = 0;
+    for (var item in incomeData) {
+      if (item['total'] != null) {
+        incTotal += double.parse(item['total'].toString());
+      }
+    }
+    periodTotalIncome.value = incTotal;
+
+    double expTotal = 0;
+    for (var item in expenseData) {
+      if (item['total'] != null) {
+        expTotal += double.parse(item['total'].toString());
+      }
+    }
+    periodTotalExpense.value = expTotal;
 
     void fillSpots(List<Map<String, dynamic>> data, List<FlSpot> spots) {
       for (var item in data) {

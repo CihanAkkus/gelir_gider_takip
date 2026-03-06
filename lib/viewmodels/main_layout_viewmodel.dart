@@ -42,7 +42,7 @@ class MainLayoutViewModel extends GetxController {
       binding: BindingsBuilder(() {
         Get.put(AddTransactionViewModel(repository: Get.find()));
       }),
-    );
+    );//işlem ekleme sayfasına gittiğimde yazılar sıfırlanmış olarak gelsin diye yaptık
   }
 
 }
