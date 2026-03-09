@@ -4,6 +4,8 @@ import 'package:gelir_gider_takip/services/db_helper.dart';
 import 'package:flutter/material.dart';
 
 class TransactionRepository {
+
+
   Future<List<CategoryModel>> getCategories() async {
     var data = await DbHelper.queryCategory();
 
