@@ -48,7 +48,7 @@ class TransactionItem extends StatelessWidget {
               Text(
                 "${item.type == TransactionType.gelir ? '+' : '-'} ₺ ${item.amount.toStringAsFixed(2)}",
                 style: TextStyle(
-                  color:Colors.white,
+                  color: Colors.white,
                   /*item.type == TransactionType.gelir
                       ? AppColors.incomeGreen
                       : AppColors.expenseRed,*/
@@ -75,7 +75,10 @@ class TransactionItem extends StatelessWidget {
                 cancelTextColor: AppColors.expenseRed,
                 onConfirm: () {
                   controller.deleteTransaction(item.id);
-                  Get.back();
+                  Navigator.pop(
+                    context,
+                  ); //Getx üst üste ekranlar açıldığı için sil butonuna basınca kafası karışıyor
+                  //Get.back();
                 },
               );
             },

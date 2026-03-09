@@ -15,7 +15,6 @@ class TransactionViewModel extends GetxController {
 
   int _currentOffset = 0;
   final int _limit = 20;
-
   //const yapmadık çünkü ilerde değiştirebilirim run-time ile belli olsun
 
   var isLoadingMore = false.obs;
@@ -24,8 +23,6 @@ class TransactionViewModel extends GetxController {
   var transactions = <TransactionModel>[]
       .obs; //filtrelenmiş bir şekilde verilerimizi tuttuğumuz liste
   var categories = <CategoryModel>[].obs;
-
-  var selectedCategory = Rxn<CategoryModel>();
 
   var filterDateList = [
     "Tümü",
@@ -76,10 +73,6 @@ class TransactionViewModel extends GetxController {
   void getCategories() async {
     var fetchedCategories = await repository.getCategories();
     categories.assignAll(fetchedCategories);
-
-    if (categories.isNotEmpty) {
-      selectedCategory.value = categories[0];
-    }
   }
 
   void addCategory(CategoryModel category) async {
@@ -149,7 +142,8 @@ class TransactionViewModel extends GetxController {
   void deleteTransaction(String id) async {
     try {
       await repository.deleteTransaction(id);
-      searchTransactions(lastQuery);
+      //searchTransactions(lastQuery);
+      getTransactions();
 
       Get.snackbar(
         "Silindi",
@@ -175,7 +169,7 @@ class TransactionViewModel extends GetxController {
   }
 
   void searchTransactions(String query) {
-    this.lastQuery = query; //single source of truth yöntemi
+    this.lastQuery = query;
     applyFilters();
   }
 

@@ -89,7 +89,8 @@ class DbHelper {
     List<dynamic> whereArgs = [];
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      whereClause += " AND $colTitle LIKE  ?";
+      whereClause += " AND ($colTitle LIKE ? OR $colDesc LIKE ?)";
+      whereArgs.add('%$searchQuery%');
       whereArgs.add('%$searchQuery%');
     }
 
@@ -123,7 +124,8 @@ class DbHelper {
     List<dynamic> whereArgs = [type];
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      whereClause += " AND $colTitle LIKE ?";
+      whereClause += " AND ($colTitle LIKE ? OR $colDesc LIKE ?)";
+      whereArgs.add('%$searchQuery%');
       whereArgs.add('%$searchQuery%');
     }
 
