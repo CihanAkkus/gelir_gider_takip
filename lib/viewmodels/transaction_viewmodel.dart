@@ -142,7 +142,6 @@ class TransactionViewModel extends GetxController {
   void deleteTransaction(String id) async {
     try {
       await repository.deleteTransaction(id);
-      //searchTransactions(lastQuery);
       getTransactions();
 
       Get.snackbar(

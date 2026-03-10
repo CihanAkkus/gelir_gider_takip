@@ -93,6 +93,7 @@ class _TransactionsViewState extends State<TransactionsView>
                 child: SearchTextField(
                   queryChanged: controller.searchTransactions,
                   controller: controller.queryController,
+                  onClear: controller.clearSearch,
                   hint: 'Arama',
                   icon: Icons.search,
                 ),

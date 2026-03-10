@@ -7,10 +7,12 @@ class SearchTextField extends StatelessWidget {
     required this.icon,
     required this.controller,
     required this.queryChanged,
+    required this.onClear,
   });
 
   final TextEditingController controller;
   final Function(String) queryChanged;
+  final VoidCallback onClear;
   final String hint;
   final IconData icon;
 
@@ -21,6 +23,10 @@ class SearchTextField extends StatelessWidget {
       style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.white70, size: 22),
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.clear, color: Colors.white54, size: 20),
+          onPressed: onClear,
+        ),
         hintText: hint,
         hintStyle: TextStyle(color: Colors.white24),
         enabledBorder: OutlineInputBorder(
